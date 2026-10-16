@@ -2,7 +2,7 @@
 # Environment variables and secrets
 .env
 .env.*
-!.env.example
+.env.example
 
 # Python virtual environments
 .venv/
