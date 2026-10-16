@@ -1,3 +1,8 @@
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "training-agent-api"
 version = "1.0.0"
@@ -10,6 +15,10 @@ dependencies = [
     "psycopg[binary]==3.3.6",
     "python-dotenv==1.2.4",
 ]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["api*", "rag*", "data*", "agent*", "state*", "engine*"]
 
 [tool.fastapi]
 entrypoint = "api.app:app"
