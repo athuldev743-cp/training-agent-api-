@@ -1,38 +1,6 @@
-﻿# Secrets and environment variables
 .env
 .env.*
-.env.example
-
-# Python environments
-.venv/
-venv/
-env/
-
-# Python cache
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Local databases
+!.env.example
 *.db
-*.sqlite
-*.sqlite3
-
-# Tests and coverage
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Linters and type checkers
-.mypy_cache/
-.ruff_cache/
-
-# Logs and temporary files
-*.log
-*.tmp
-
-# IDE and operating system
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
+__pycache__/
+.venv/

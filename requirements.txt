@@ -1,7 +1,6 @@
 # Hosted API only (no local model, no PDF tools, no embedding stack). Install: pip install -r requirements-api.txt
 # fastapi[standard] provides the `fastapi run` command that FastAPI Cloud uses to start the app
 fastapi[standard]==0.143.1
-fastapi-cli
 uvicorn==0.54.0
 httpx==0.28.1
 pydantic==2.13.5
