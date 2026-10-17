@@ -5,9 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "training-agent-api"
 version = "1.0.0"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.14"
 dependencies = [
     "fastapi[standard]==0.143.1",
+    "fastapi-cli",
     "uvicorn==0.54.0",
     "httpx==0.28.1",
     "pydantic==2.13.5",
