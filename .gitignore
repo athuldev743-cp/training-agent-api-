@@ -1,15 +1,14 @@
-
-# Environment variables and secrets
+﻿# Secrets and environment variables
 .env
 .env.*
 .env.example
 
-# Python virtual environments
+# Python environments
 .venv/
 venv/
 env/
 
-# Python cache and compiled files
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -19,12 +18,12 @@ __pycache__/
 *.sqlite
 *.sqlite3
 
-# Test and coverage output
+# Tests and coverage
 .pytest_cache/
 .coverage
 htmlcov/
 
-# Type-checker and linter caches
+# Linters and type checkers
 .mypy_cache/
 .ruff_cache/
 
@@ -32,7 +31,7 @@ htmlcov/
 *.log
 *.tmp
 
-# Local IDE and OS files
+# IDE and operating system
 .vscode/
 .idea/
 .DS_Store
