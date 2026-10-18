@@ -24,6 +24,7 @@ app.state.exercises = None
 class ChatIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     message: str = Field(min_length=1, max_length=1000)
+    today: date | None = None
 
 
 class SyncIn(BaseModel):
@@ -108,19 +109,24 @@ def sync_up(body: SyncIn, user: str = Depends(current_user)):
         close(s)
 
 
-def run_chat(user, text):
+def run_chat(user, text, today=None):
     from agent.dispatcher import handle_message
     s = stores(user)
     try:
-        r = handle_message(model(), text, exercises(), s["profile"].get(), s["programs"], date.today(), s["history"])
-        return {"status": r.get("status"), "tool": r.get("tool"), "reply": r.get("reply")}
+        r = handle_message(model(), text, exercises(), s["profile"].get(), s["programs"], today or date.today(), s["history"])
+        out = {"status": r.get("status"), "tool": r.get("tool"), "reply": r.get("reply"), "confirm_token": None}
+        pending = (r.get("data") or {}).get("pending") if r.get("status") == "confirm" else None
+        if isinstance(pending, dict) and pending.get("tool") in CONFIRMABLE:
+            out["confirm_token"] = issue_confirm(user, pending, _marker(s["programs"]))
+            out["confirm_expires_in"] = 300
+        return out
     finally:
         close(s)
 
 
 @app.post("/v1/chat")
 def chat(body: ChatIn, user: str = Depends(current_user)):
-    return run_chat(user, body.message)
+    return run_chat(user, body.message, _client_today(body.today))
 
 
 _SENT = re.compile(r"(?<=[.!?])\s+")
@@ -132,7 +138,7 @@ def sse(event, data):
 
 @app.post("/v1/chat/stream")
 def chat_stream(body: ChatIn, user: str = Depends(current_user)):
-    result = run_chat(user, body.message)
+    result = run_chat(user, body.message, _client_today(body.today))
 
     def gen():
         # safety / scope / plans / tools are deterministic and already validated: one complete event.
@@ -142,7 +148,7 @@ def chat_stream(body: ChatIn, user: str = Depends(current_user)):
                 if part.strip():
                     yield sse("sentence", {"text": part.strip()})
         else:
-            yield sse("message", {"text": result["reply"], "status": result["status"]})
+            yield sse("message", {"text": result["reply"], "status": result["status"], "confirm_token": result.get("confirm_token")})
         yield sse("done", {"status": result["status"]})
 
     return StreamingResponse(gen(), media_type="text/event-stream")
@@ -309,3 +315,55 @@ def auth_refresh(body: RefreshIn):
 def auth_logout(body: RefreshIn):
     _auth_call(lambda s: s.revoke(body.refresh_token))
     return {"status": "ok"}
+
+
+from datetime import timedelta
+from api.auth import issue_confirm, verify_confirm
+
+CONFIRMABLE = {"build_program", "finish_session", "skip_session"}
+
+
+def _marker(programs):
+    """Where the user's programme stands: (active programme id, next planned session id). A confirmation is only valid in this exact state."""
+    active = programs.active_program()
+    if active is None:
+        return [None, None]
+    nxt = programs.next_session(active["id"])
+    return [active["id"], nxt["id"] if nxt else None]
+
+
+def _client_today(d):
+    if d is None:
+        return date.today()
+    if abs((d - date.today()).days) > 2:
+        raise HTTPException(422, "today must be within 2 days of the server date")
+    return d
+
+
+class ConfirmIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    token: str = Field(min_length=20, max_length=2000)
+    accept: bool
+    today: date | None = None
+
+
+@app.post("/v1/chat/confirm")
+def chat_confirm(body: ConfirmIn, user: str = Depends(current_user)):
+    try:
+        action, marker = verify_confirm(body.token, user)
+    except AuthError:
+        raise HTTPException(400, "invalid or expired confirmation")
+    if not isinstance(action, dict) or action.get("tool") not in CONFIRMABLE:
+        raise HTTPException(400, "invalid or expired confirmation")
+    today = _client_today(body.today)
+    if not body.accept:
+        return {"status": "cancelled", "tool": action["tool"], "reply": "Okay, I cancelled that. Nothing was changed."}
+    from agent.coach_tools import run_coach_tool
+    s = stores(user)
+    try:
+        if _marker(s["programs"]) != marker:
+            raise HTTPException(409, "your plan changed since I asked, so please ask again")
+        r = run_coach_tool(action, exercises(), s["profile"].get(), s["programs"], s["history"], today, confirmed=True)
+        return {"status": r.get("status"), "tool": r.get("tool"), "reply": r.get("reply")}
+    finally:
+        close(s)

@@ -49,7 +49,38 @@ def verify(token, now=None, key=None):
         raise AuthError("malformed token")
     if int(now if now is not None else time.time()) >= int(claims.get("exp", 0)):
         raise AuthError("token expired")
+    if claims.get("typ") is not None:
+        raise AuthError("wrong token type")
     sub = claims.get("sub")
     if not isinstance(sub, str) or not _USER.fullmatch(sub):
         raise AuthError("bad subject")
     return sub
+
+
+def issue_confirm(user_id, action, marker, ttl=300, now=None, key=None):
+    """Short-lived token proving the server asked this user to confirm this exact action in this exact state."""
+    if not isinstance(user_id, str) or not _USER.fullmatch(user_id):
+        raise AuthError("bad user id")
+    t = int(now if now is not None else time.time())
+    head = _b64(json.dumps({"alg": "HS256", "typ": "JWT"}, separators=(",", ":")).encode())
+    body = _b64(json.dumps({"sub": user_id, "typ": "confirm", "act": action, "mk": marker, "iat": t, "exp": t + ttl}, separators=(",", ":"), sort_keys=True).encode())
+    sig = _b64(hmac.new(key or secret(), head + b"." + body, hashlib.sha256).digest())
+    return (head + b"." + body + b"." + sig).decode()
+
+
+def verify_confirm(token, user_id, now=None, key=None):
+    try:
+        head, body, sig = token.encode().split(b".")
+        good = _b64(hmac.new(key or secret(), head + b"." + body, hashlib.sha256).digest())
+        if not hmac.compare_digest(sig, good):
+            raise AuthError("bad signature")
+        claims = json.loads(_unb64(body))
+    except AuthError:
+        raise
+    except Exception:
+        raise AuthError("malformed token")
+    if claims.get("typ") != "confirm" or claims.get("sub") != user_id:
+        raise AuthError("wrong token")
+    if int(now if now is not None else time.time()) >= int(claims.get("exp", 0)):
+        raise AuthError("token expired")
+    return claims["act"], claims["mk"]
