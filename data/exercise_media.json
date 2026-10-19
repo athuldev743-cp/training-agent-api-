@@ -1,0 +1,370 @@
+{
+ "push-up": {
+  "alt": "Push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "incline-push-up": {
+  "alt": "Incline push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "decline-push-up": {
+  "alt": "Decline push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "diamond-push-up": {
+  "alt": "Diamond push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "dumbbell-bench-press": {
+  "alt": "Dumbbell bench press",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "dumbbell-floor-press": {
+  "alt": "Dumbbell floor press",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "dumbbell-fly": {
+  "alt": "Dumbbell fly",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "dumbbell-shoulder-press": {
+  "alt": "Dumbbell shoulder press",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "pike-push-up": {
+  "alt": "Pike push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "lateral-raise": {
+  "alt": "Lateral raise",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "front-raise": {
+  "alt": "Front raise",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "rear-delt-fly": {
+  "alt": "Rear delt fly",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "pull-up": {
+  "alt": "Pull-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "one-arm-dumbbell-row": {
+  "alt": "One-arm dumbbell row",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "dumbbell-shrug": {
+  "alt": "Dumbbell shrug",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "dumbbell-pullover": {
+  "alt": "Dumbbell pullover",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "superman": {
+  "alt": "Superman",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "dumbbell-curl": {
+  "alt": "Dumbbell curl",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "hammer-curl": {
+  "alt": "Hammer curl",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "bench-dip": {
+  "alt": "Bench dip",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "overhead-triceps-extension": {
+  "alt": "Overhead triceps extension",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "bodyweight-squat": {
+  "alt": "Bodyweight squat",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "goblet-squat": {
+  "alt": "Goblet squat",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "split-squat": {
+  "alt": "Split squat",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "bulgarian-split-squat": {
+  "alt": "Bulgarian split squat",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "reverse-lunge": {
+  "alt": "Reverse lunge",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "dumbbell-lunge": {
+  "alt": "Dumbbell lunge",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "dumbbell-romanian-deadlift": {
+  "alt": "Dumbbell Romanian deadlift",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "glute-bridge": {
+  "alt": "Glute bridge",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "single-leg-glute-bridge": {
+  "alt": "Single-leg glute bridge",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "hip-thrust": {
+  "alt": "Hip thrust",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "calf-raise": {
+  "alt": "Calf raise",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "plank": {
+  "alt": "Plank",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "side-plank": {
+  "alt": "Side plank",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "dead-bug": {
+  "alt": "Dead bug",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "leg-raise": {
+  "alt": "Leg raise",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "bicycle-crunch": {
+  "alt": "Bicycle crunch",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "close-grip-push-up": {
+  "alt": "Close-grip push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "hamstring-walkout": {
+  "alt": "Hamstring walkout",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "bodyweight-good-morning": {
+  "alt": "Bodyweight good morning",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "plank-to-down-dog": {
+  "alt": "Plank to downward dog",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "wall-walk": {
+  "alt": "Wall walk",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "chin-up": {
+  "alt": "Chin-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "inverted-row": {
+  "alt": "Inverted row",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "underhand-inverted-row": {
+  "alt": "Underhand inverted row",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "knee-push-up": {
+  "alt": "Knee push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ }
+}
