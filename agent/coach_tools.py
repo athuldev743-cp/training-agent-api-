@@ -55,7 +55,7 @@ def run_coach_tool(decision: dict, exercises: list[Exercise], profile: UserProfi
             if programs.active_program() is None:
                 return ask("Build a 4-week programme from your profile, starting today?")
             return ask("You already have an active programme. Building a new one replaces it.")
-        result = start_program(exercises, profile, programs, today, decision.get("days"))
+        result = start_program(exercises, profile, programs, today, decision.get("days"), history=history)
         return out(result["status"], result["reply"], days=decision.get("days"))
 
     if tool == "todays_workout":

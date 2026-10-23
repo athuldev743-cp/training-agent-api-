@@ -109,7 +109,7 @@ def choose_split(level: str, days: int | None) -> tuple[str, int, str | None]:
 
 def allowed_exercises(exercises, level, equipment, limitations, phase, tiers) -> list[Exercise]:
     rank = DIFFICULTY_RANK[level]
-    wanted = {"foundation"} if phase == "foundation" else {"foundation", "build"}
+    wanted = {"foundation"} if (phase == "foundation" and level == "beginner") else {"foundation", "build"}
     have = set(KNOWN_EQUIPMENT) if equipment is None else set(equipment) | {"bodyweight"}
     return [
         e for e in safe_exercises(exercises, limitations)
@@ -209,8 +209,10 @@ def _build_block(phase, split_days, level, pool, owned, budget, cap, tiers, temp
                  by_id, families, day_caps=None) -> dict[int, list[Exercise]]:
     last_week = 2 if phase == "foundation" else 4  # the block's heaviest week must still fit the budget
     block: dict[int, list[Exercise]] = {}
+    seen_by_label: dict[str, set[str]] = {}
     for day_number, groups in enumerate(split_days, 1):
         order = _day_muscle_order(groups, day_number, cap)
+        prior = seen_by_label.get(groups[0], set())  # exercises used on earlier days of the same kind
         day_cap = cap if not day_caps else min(cap, max(1, len(day_caps.get(day_number, [])) or cap))
         chosen: list[Exercise] = []
         patterns: set[str] = set()
@@ -221,7 +223,9 @@ def _build_block(phase, split_days, level, pool, owned, budget, cap, tiers, temp
             nonlocal minutes
             if len(chosen) >= day_cap or per_muscle.get(muscle, 0) >= MAX_PER_MUSCLE:
                 return False
-            ex = _pick(muscle, pool, chosen, patterns, owned, phase, tiers, level, by_id, families)
+            fresh = [e for e in pool if e.id not in prior]
+            ex = (_pick(muscle, fresh, chosen, patterns, owned, phase, tiers, level, by_id, families) if prior else None) \
+                or _pick(muscle, pool, chosen, patterns, owned, phase, tiers, level, by_id, families)
             if ex is None:
                 return False
             rx = prescription_for(ex.id, level, templates, goal)
@@ -266,6 +270,7 @@ def _build_block(phase, split_days, level, pool, owned, budget, cap, tiers, temp
                     minutes += cost
                     break
                 remaining = [e for e in remaining if e.id != ex.id]
+        seen_by_label.setdefault(groups[0], set()).update(e.id for e in chosen)
         block[day_number] = chosen
     return block
 
@@ -380,7 +385,7 @@ def format_overview(program: Program) -> str:
     lines = [
         f"Your 4-week {SPLIT_NAMES[program.split]} programme: {program.days_per_week} days a week ({days}).",
         f"Level: {program.level}. Goal: {program.goal.replace('_', ' ')}. Equipment: {equipment}. Avoiding exercises that load: {avoid}.",
-        "Weeks 1-2: foundation exercises only. Weeks 3-4: harder variations and more sets.",
+        "Weeks 1-2: lower effort and fewer sets (beginners also stay on foundation exercises). Weeks 3-4: harder variations and more sets.",
         "Control every rep: about 2 seconds down and 1 second up, no bouncing.",
     ]
     lines += [f"Note: {n}" for n in program.notes]
@@ -398,3 +403,31 @@ def format_week(program: Program, week_number: int) -> str:
             lines.append(f"    {i}. {e.name}: {e.sets} sets x {e.aim_low}-{e.aim_high}{u} "
                          f"(range {e.rep_min}-{e.rep_max}{u}), rest {e.rest_seconds} s")
     return "\n".join(lines)
+
+
+# --- Plan upgrade: honour the requested number of days (2 to 6) ---
+DAY_RANGE = {_lv: (2, 6) for _lv in DAY_RANGE}
+WEEKDAYS = {**WEEKDAYS, 6: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]}
+SPLITS = {**SPLITS, "push_pull_legs": list(SPLITS["push_pull_legs"]) * 2}
+
+
+def choose_split(level: str, days: int | None) -> tuple[str, int, str | None]:
+    # Returns (split name, days used, optional note). Any request from 2 to 6 days is honoured.
+    wanted = DEFAULT_DAYS[level] if days is None else days
+    used = max(2, min(6, wanted))
+    notes = []
+    if used != wanted:
+        notes.append(f"{wanted} day(s) a week cannot be scheduled with proper rest days (2 to 6 works), so I used {used}.")
+    if used > {"beginner": 4, "intermediate": 5, "advanced": 6}[level]:
+        notes.append(f"{used} days a week is a lot for a {level}: drop a day if you feel run down.")
+    if used == 2 or (used == 3 and level == "beginner"):
+        name = "full_body"
+    elif used == 3:
+        name = "push_pull_legs"
+    elif used == 4:
+        name = "upper_lower"
+    elif used == 5:
+        name = "bro_split"
+    else:
+        name = "push_pull_legs"
+    return name, used, (" ".join(notes) or None)

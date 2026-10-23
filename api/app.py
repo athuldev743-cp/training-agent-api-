@@ -373,7 +373,7 @@ from engine.safety import assess_policy, assess_symptoms
 from engine.swap import swap_exercise
 from engine.swap_checks import check_swap
 from rag.search import DIFFICULTY_RANK, search_exercises
-from state.profile import KNOWN_LIMITATIONS, UserProfile
+from state.profile import KNOWN_EQUIPMENT, KNOWN_LIMITATIONS, UserProfile
 
 _MEDIA = {}
 
@@ -456,7 +456,7 @@ def v1_meta():
     lib = exercises()
     has_media = lambda e: bool((_media(e.id) or {}).get("video_url") or (_media(e.id) or {}).get("image_urls"))
     return {"goals": props.get("goal", {}).get("enum"), "experience": props.get("experience", {}).get("enum"),
-            "screening": props.get("screening", {}).get("enum"), "equipment": sorted({q for e in lib for q in e.equipment}),
+            "screening": props.get("screening", {}).get("enum"), "equipment": sorted(KNOWN_EQUIPMENT),
             "limitations": sorted(KNOWN_LIMITATIONS), "muscles": list(MUSCLES), "difficulties": list(DIFFICULTY_RANK),
             "exercise_count": len(lib), "media_available": sum(1 for e in lib if has_media(e)), "profile_fields": props,
             "disclaimer": DISCLAIMER, "health_question": RED_FLAG_QUESTION, "days_per_week": {"min": 1, "max": 7}}
@@ -514,7 +514,7 @@ def v1_build_program(body: BuildIn, user: str = Depends(current_user)):
         profile = s["profile"].get()
         if profile is None:
             raise HTTPException(409, "create your profile first")
-        r = start_program(exercises(), profile, s["programs"], _client_today(body.today), body.days)
+        r = start_program(exercises(), profile, s["programs"], _client_today(body.today), body.days, history=s["history"])
         out = {"status": r["status"], "reply": r["reply"]}
         if r["status"] in ("ok", "active"):
             out.update(_payload(s))
@@ -704,3 +704,32 @@ def v1_safety(body: SafetyIn, user: str = Depends(current_user)):
         return {"level": a.level, "policy": None, "reply": a.reply}
     kind, reply = assess_policy(body.text)
     return {"level": "none", "policy": kind, "reply": reply}
+
+
+# --- Progressive overload and weekly tracking ---
+@app.get("/v1/progress/targets")
+def v1_progress_targets(today: date | None = None, user: str = Depends(current_user)):
+    from engine.progress import build_targets
+    s = stores(user)
+    try:
+        active = s["programs"].active_program()
+        if active is None:
+            raise HTTPException(404, "no active programme")
+        nxt = s["programs"].next_session(active["id"])
+        if nxt is None:
+            raise HTTPException(404, "no planned session left")
+        return build_targets(active["program"], nxt, s["history"], exercises(), _client_today(today))
+    finally:
+        close(s)
+
+
+@app.get("/v1/progress/weekly")
+def v1_progress_weekly(today: date | None = None, user: str = Depends(current_user)):
+    from engine.progress import set_rows, weekly_summary
+    s = stores(user)
+    try:
+        active = s["programs"].active_program()
+        rows = s["programs"].sessions(active["id"]) if active else []
+        return weekly_summary(_client_today(today), active["program"] if active else None, rows, set_rows(s["history"]), exercises())
+    finally:
+        close(s)

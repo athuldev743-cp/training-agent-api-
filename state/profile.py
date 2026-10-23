@@ -3,7 +3,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-KNOWN_EQUIPMENT = {"bodyweight", "dumbbells", "bench", "pull_up_bar", "row_bar"}
+GYM_EQUIPMENT = {"barbell", "squat_rack", "cable", "machine"}
+KNOWN_EQUIPMENT = {"bodyweight", "dumbbells", "bench", "pull_up_bar", "row_bar"} | GYM_EQUIPMENT | {"full_gym"}  # full_gym = everything
 KNOWN_LIMITATIONS = {"knee", "lower_back", "shoulder", "wrist", "elbow"}
 
 # not_asked / needs_clearance block workout plans; clear / cleared_by_doctor allow them.
@@ -33,6 +34,8 @@ class UserProfile(BaseModel):
         if unknown:
             raise ValueError(f"unknown equipment: {sorted(unknown)}")
         # Bodyweight is always available, so it is not stored as owned equipment.
+        if "full_gym" in cleaned:  # a gym has everything: expand, but keep the marker so the app can show one tick
+            cleaned = list(dict.fromkeys(cleaned + sorted(KNOWN_EQUIPMENT - {"bodyweight", "full_gym"})))
         return [item for item in cleaned if item != "bodyweight"]
 
     @field_validator("limitations")

@@ -57,10 +57,16 @@ def swap_level(action: str, level: str) -> str:
 
 
 def start_program(exercises: list[Exercise], profile: UserProfile, programs: ProgramStore,
-                  today: date, days: int | None = None) -> dict:
+                  today: date, days: int | None = None, history=None) -> dict:
     result = build_program(exercises, profile, days)
     if result["status"] != "ok":
         return {"status": result["status"], "reply": result["reply"]}
+    if history is not None:  # use the last 4 weeks of logs: promote, step back, rebalance
+        from engine.history_plan import adjust_program
+        prev = programs.active_program()
+        prev_rows = programs.sessions(prev["id"]) if prev else []
+        result["program"], extra = adjust_program(result["program"], profile, history, prev, prev_rows, exercises, today)
+        result["reply"] += "".join(f"\nNote: {n}" for n in extra)
     pid = programs.save_program(result["program"], today)
     week1 = [_fmt_date(r["planned_date"]) for r in programs.sessions(pid) if r["week"] == 1]
     reply = (result["reply"] + f"\n\nSaved. Week 1: {', '.join(week1)}. "
