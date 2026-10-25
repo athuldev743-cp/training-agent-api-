@@ -27,7 +27,7 @@ def _num(v, lo, hi):
 
 def _ok_set(s):
     return (isinstance(s, dict) and isinstance(s.get("exercise_id"), str) and s["exercise_id"] != ""
-            and _int(s.get("set_number"), 1, 1000) and _int(s.get("reps"), 0, 100) and _num(s.get("weight_kg"), 0, 1000)
+            and _int(s.get("set_number"), 1, 1000) and _int(s.get("reps"), 0, 3600) and _num(s.get("weight_kg"), 0, 1000)
             and _num(s.get("rpe"), 1, 10) and s.get("completed") in (0, 1, True, False))
 
 

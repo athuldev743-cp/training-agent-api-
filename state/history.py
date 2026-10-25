@@ -8,7 +8,7 @@ from state.db import LOCAL_USER_ID, check_user_id, connect
 
 class SetLog(BaseModel):
     exercise_id: str = Field(min_length=1)
-    reps: int = Field(ge=0, le=100)
+    reps: int = Field(ge=0, le=3600)  # timed sets log seconds; cardio intervals run up to 6 minutes
     weight_kg: float = Field(default=0.0, ge=0)
     rpe: float = Field(ge=1, le=10)
     completed: bool = True

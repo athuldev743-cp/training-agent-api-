@@ -39,7 +39,7 @@ def week_stats(rows: list[dict], start: date) -> dict:
         if r["weight_kg"] == L["best_load"]:
             L["best_reps"] = max(L["best_reps"], r["reps"])
     return {"start": start.isoformat(), "workouts": len({r["workout_id"] for r in mine}), "sets": len(mine),
-            "volume": round(sum(r["reps"] * (r["weight_kg"] or 1) for r in done), 1),
+            "volume": round(sum(r["reps"] * (r["weight_kg"] or 1) for r in done if r["exercise_id"] not in _timed()), 1),
             "avg_rpe": round(mean(r["rpe"] for r in mine), 2) if mine else None, "lifts": lifts}
 
 
@@ -147,3 +147,13 @@ def weekly_summary(today: date, program, session_rows: list[dict], rows: list[di
                               "waived_by_deload": bool(deload), "lifts": lifts,
                               "met": True if deload else (all(x["beat_last_week"] for x in lifts) if lifts else None)},
             "deload": deload, "flags": flags}
+
+
+from functools import lru_cache as _lru_cache
+
+
+@_lru_cache(maxsize=1)
+def _timed():
+    """Exercises logged in seconds (holds, conditioning, cardio): they are not volume (reps x load)."""
+    from engine.prescription import TEMPLATES, load_templates
+    return {i for i, t in load_templates().items() if TEMPLATES[t][0] == "seconds"}
