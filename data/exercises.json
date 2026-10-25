@@ -1596,5 +1596,978 @@
   ],
   "progression": null,
   "regression": null
+ },
+ {
+  "id": "jumping-jacks",
+  "name": "Jumping jacks",
+  "muscles": [
+   "calves",
+   "shoulders",
+   "quads"
+  ],
+  "primary": [
+   "calves"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "conditioning",
+  "alternatives": [
+   "calf-raise",
+   "single-leg-calf-raise"
+  ],
+  "progression": "high-knees",
+  "regression": null
+ },
+ {
+  "id": "high-knee-march",
+  "name": "High-knee march",
+  "muscles": [
+   "quads",
+   "core"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "conditioning",
+  "alternatives": [
+   "burpee",
+   "high-knees",
+   "bodyweight-squat"
+  ],
+  "progression": "high-knees",
+  "regression": null
+ },
+ {
+  "id": "shadow-boxing",
+  "name": "Shadow boxing",
+  "muscles": [
+   "core",
+   "shoulders"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "conditioning",
+  "alternatives": [
+   "bear-crawl",
+   "mountain-climber",
+   "plank-jack"
+  ],
+  "progression": null,
+  "regression": null
+ },
+ {
+  "id": "high-knees",
+  "name": "High knees",
+  "muscles": [
+   "quads",
+   "calves",
+   "core"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "conditioning",
+  "alternatives": [
+   "burpee",
+   "high-knee-march",
+   "cossack-squat"
+  ],
+  "progression": null,
+  "regression": "high-knee-march"
+ },
+ {
+  "id": "mountain-climber",
+  "name": "Mountain climber",
+  "muscles": [
+   "core",
+   "shoulders",
+   "quads"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "conditioning",
+  "alternatives": [
+   "bear-crawl",
+   "plank-jack",
+   "shadow-boxing"
+  ],
+  "progression": null,
+  "regression": "plank"
+ },
+ {
+  "id": "bear-crawl",
+  "name": "Bear crawl",
+  "muscles": [
+   "core",
+   "shoulders",
+   "quads"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "conditioning",
+  "alternatives": [
+   "mountain-climber",
+   "plank-jack",
+   "shadow-boxing"
+  ],
+  "progression": null,
+  "regression": null
+ },
+ {
+  "id": "plank-jack",
+  "name": "Plank jack",
+  "muscles": [
+   "core",
+   "shoulders"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "conditioning",
+  "alternatives": [
+   "bear-crawl",
+   "mountain-climber",
+   "shadow-boxing"
+  ],
+  "progression": null,
+  "regression": "plank"
+ },
+ {
+  "id": "burpee",
+  "name": "Burpee",
+  "muscles": [
+   "chest",
+   "quads",
+   "core",
+   "shoulders"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "conditioning",
+  "alternatives": [
+   "high-knees",
+   "high-knee-march",
+   "cossack-squat"
+  ],
+  "progression": null,
+  "regression": null
+ },
+ {
+  "id": "skater-jump",
+  "name": "Skater jump",
+  "muscles": [
+   "glutes",
+   "quads",
+   "calves"
+  ],
+  "primary": [
+   "glutes"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "plyometric",
+  "alternatives": [
+   "broad-jump",
+   "curtsy-lunge",
+   "lateral-lunge"
+  ],
+  "progression": null,
+  "regression": "reverse-lunge"
+ },
+ {
+  "id": "squat-jump",
+  "name": "Squat jump",
+  "muscles": [
+   "quads",
+   "glutes",
+   "calves"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "plyometric",
+  "alternatives": [
+   "jump-lunge",
+   "tuck-jump",
+   "burpee"
+  ],
+  "progression": "tuck-jump",
+  "regression": "bodyweight-squat"
+ },
+ {
+  "id": "broad-jump",
+  "name": "Broad jump",
+  "muscles": [
+   "glutes",
+   "hamstrings",
+   "quads"
+  ],
+  "primary": [
+   "glutes"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "plyometric",
+  "alternatives": [
+   "skater-jump",
+   "curtsy-lunge",
+   "lateral-lunge"
+  ],
+  "progression": null,
+  "regression": "squat-jump"
+ },
+ {
+  "id": "tuck-jump",
+  "name": "Tuck jump",
+  "muscles": [
+   "quads",
+   "glutes",
+   "core"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "advanced",
+  "movement": "plyometric",
+  "alternatives": [
+   "jump-lunge",
+   "squat-jump",
+   "pistol-squat"
+  ],
+  "progression": null,
+  "regression": "squat-jump"
+ },
+ {
+  "id": "jump-lunge",
+  "name": "Jump lunge",
+  "muscles": [
+   "quads",
+   "glutes"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "advanced",
+  "movement": "plyometric",
+  "alternatives": [
+   "tuck-jump",
+   "squat-jump",
+   "pistol-squat"
+  ],
+  "progression": null,
+  "regression": "reverse-lunge"
+ },
+ {
+  "id": "clap-push-up",
+  "name": "Clap push-up",
+  "muscles": [
+   "chest",
+   "triceps",
+   "shoulders"
+  ],
+  "primary": [
+   "chest"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "advanced",
+  "movement": "plyometric",
+  "alternatives": [
+   "archer-push-up",
+   "pseudo-planche-push-up",
+   "decline-push-up"
+  ],
+  "progression": null,
+  "regression": "decline-push-up"
+ },
+ {
+  "id": "reverse-crunch",
+  "name": "Reverse crunch",
+  "muscles": [
+   "core"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "core_lower",
+  "alternatives": [
+   "flutter-kick",
+   "bicycle-crunch",
+   "bird-dog"
+  ],
+  "progression": "leg-raise",
+  "regression": null
+ },
+ {
+  "id": "flutter-kick",
+  "name": "Flutter kick",
+  "muscles": [
+   "core"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "core_lower",
+  "alternatives": [
+   "reverse-crunch",
+   "bicycle-crunch",
+   "bird-dog"
+  ],
+  "progression": "leg-raise",
+  "regression": null
+ },
+ {
+  "id": "bird-dog",
+  "name": "Bird dog",
+  "muscles": [
+   "core",
+   "back",
+   "glutes"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "core_stability",
+  "alternatives": [
+   "plank-shoulder-tap",
+   "bicycle-crunch",
+   "dead-bug"
+  ],
+  "progression": "plank-shoulder-tap",
+  "regression": null
+ },
+ {
+  "id": "russian-twist",
+  "name": "Russian twist",
+  "muscles": [
+   "core"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "core_rotation",
+  "alternatives": [
+   "bear-crawl",
+   "hollow-hold",
+   "leg-raise"
+  ],
+  "progression": null,
+  "regression": "bicycle-crunch"
+ },
+ {
+  "id": "hollow-hold",
+  "name": "Hollow body hold",
+  "muscles": [
+   "core"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "core_hold",
+  "alternatives": [
+   "bear-crawl",
+   "leg-raise",
+   "mountain-climber"
+  ],
+  "progression": "hollow-rock",
+  "regression": "dead-bug"
+ },
+ {
+  "id": "v-up",
+  "name": "V-up",
+  "muscles": [
+   "core"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "core_flexion",
+  "alternatives": [
+   "hollow-rock",
+   "bear-crawl",
+   "hollow-hold"
+  ],
+  "progression": null,
+  "regression": "reverse-crunch"
+ },
+ {
+  "id": "plank-shoulder-tap",
+  "name": "Plank shoulder tap",
+  "muscles": [
+   "core",
+   "shoulders"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "core_stability",
+  "alternatives": [
+   "bird-dog",
+   "bear-crawl",
+   "hollow-hold"
+  ],
+  "progression": null,
+  "regression": "plank"
+ },
+ {
+  "id": "side-plank-hip-drop",
+  "name": "Side plank hip drop",
+  "muscles": [
+   "core"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "core_lateral",
+  "alternatives": [
+   "bear-crawl",
+   "hollow-hold",
+   "leg-raise"
+  ],
+  "progression": null,
+  "regression": "side-plank"
+ },
+ {
+  "id": "hollow-rock",
+  "name": "Hollow rock",
+  "muscles": [
+   "core"
+  ],
+  "primary": [
+   "core"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "advanced",
+  "movement": "core_flexion",
+  "alternatives": [
+   "v-up",
+   "bear-crawl",
+   "hollow-hold"
+  ],
+  "progression": null,
+  "regression": "hollow-hold"
+ },
+ {
+  "id": "wall-sit",
+  "name": "Wall sit",
+  "muscles": [
+   "quads",
+   "glutes"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "squat",
+  "alternatives": [
+   "bodyweight-squat",
+   "pistol-squat",
+   "high-knee-march"
+  ],
+  "progression": null,
+  "regression": null
+ },
+ {
+  "id": "lateral-lunge",
+  "name": "Lateral lunge",
+  "muscles": [
+   "quads",
+   "glutes"
+  ],
+  "primary": [
+   "glutes"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "lunge",
+  "alternatives": [
+   "curtsy-lunge",
+   "reverse-lunge",
+   "broad-jump"
+  ],
+  "progression": null,
+  "regression": "reverse-lunge"
+ },
+ {
+  "id": "cossack-squat",
+  "name": "Cossack squat",
+  "muscles": [
+   "quads",
+   "glutes",
+   "hamstrings"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "lunge",
+  "alternatives": [
+   "split-squat",
+   "reverse-lunge",
+   "shrimp-squat"
+  ],
+  "progression": null,
+  "regression": "lateral-lunge"
+ },
+ {
+  "id": "curtsy-lunge",
+  "name": "Curtsy lunge",
+  "muscles": [
+   "glutes",
+   "quads"
+  ],
+  "primary": [
+   "glutes"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "lunge",
+  "alternatives": [
+   "lateral-lunge",
+   "reverse-lunge",
+   "broad-jump"
+  ],
+  "progression": null,
+  "regression": "reverse-lunge"
+ },
+ {
+  "id": "single-leg-rdl",
+  "name": "Single-leg Romanian deadlift",
+  "muscles": [
+   "hamstrings",
+   "glutes"
+  ],
+  "primary": [
+   "hamstrings"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "hinge",
+  "alternatives": [
+   "single-leg-glute-bridge",
+   "bodyweight-good-morning",
+   "hamstring-walkout"
+  ],
+  "progression": null,
+  "regression": "bodyweight-good-morning"
+ },
+ {
+  "id": "pistol-squat",
+  "name": "Pistol squat",
+  "muscles": [
+   "quads",
+   "glutes"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "advanced",
+  "movement": "squat",
+  "alternatives": [
+   "bodyweight-squat",
+   "wall-sit",
+   "jump-lunge"
+  ],
+  "progression": null,
+  "regression": "split-squat"
+ },
+ {
+  "id": "shrimp-squat",
+  "name": "Shrimp squat",
+  "muscles": [
+   "quads",
+   "glutes"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "advanced",
+  "movement": "lunge",
+  "alternatives": [
+   "cossack-squat",
+   "split-squat",
+   "reverse-lunge"
+  ],
+  "progression": null,
+  "regression": "split-squat"
+ },
+ {
+  "id": "frog-pump",
+  "name": "Frog pump",
+  "muscles": [
+   "glutes"
+  ],
+  "primary": [
+   "glutes"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "hinge",
+  "alternatives": [
+   "glute-bridge",
+   "single-leg-glute-bridge",
+   "donkey-kick"
+  ],
+  "progression": "single-leg-glute-bridge",
+  "regression": "glute-bridge"
+ },
+ {
+  "id": "donkey-kick",
+  "name": "Donkey kick",
+  "muscles": [
+   "glutes"
+  ],
+  "primary": [
+   "glutes"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "isolation",
+  "alternatives": [
+   "frog-pump",
+   "glute-bridge",
+   "reverse-lunge"
+  ],
+  "progression": null,
+  "regression": null
+ },
+ {
+  "id": "single-leg-calf-raise",
+  "name": "Single-leg calf raise",
+  "muscles": [
+   "calves"
+  ],
+  "primary": [
+   "calves"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "isolation",
+  "alternatives": [
+   "calf-raise",
+   "jumping-jacks"
+  ],
+  "progression": null,
+  "regression": "calf-raise"
+ },
+ {
+  "id": "archer-push-up",
+  "name": "Archer push-up",
+  "muscles": [
+   "chest",
+   "triceps",
+   "shoulders"
+  ],
+  "primary": [
+   "chest"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "advanced",
+  "movement": "push",
+  "alternatives": [
+   "pseudo-planche-push-up",
+   "decline-push-up",
+   "incline-push-up"
+  ],
+  "progression": null,
+  "regression": "decline-push-up"
+ },
+ {
+  "id": "pseudo-planche-push-up",
+  "name": "Pseudo planche push-up",
+  "muscles": [
+   "chest",
+   "shoulders",
+   "triceps"
+  ],
+  "primary": [
+   "chest"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "advanced",
+  "movement": "push",
+  "alternatives": [
+   "archer-push-up",
+   "decline-push-up",
+   "incline-push-up"
+  ],
+  "progression": null,
+  "regression": "decline-push-up"
+ },
+ {
+  "id": "decline-pike-push-up",
+  "name": "Decline pike push-up",
+  "muscles": [
+   "shoulders",
+   "triceps"
+  ],
+  "primary": [
+   "shoulders"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "advanced",
+  "movement": "push",
+  "alternatives": [
+   "wall-walk",
+   "pike-push-up",
+   "plank-to-down-dog"
+  ],
+  "progression": null,
+  "regression": "pike-push-up"
+ },
+ {
+  "id": "prone-y-raise",
+  "name": "Prone Y raise",
+  "muscles": [
+   "back",
+   "shoulders"
+  ],
+  "primary": [
+   "back"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "extension",
+  "alternatives": [
+   "prone-t-raise",
+   "superman",
+   "reverse-snow-angel"
+  ],
+  "progression": "prone-t-raise",
+  "regression": null
+ },
+ {
+  "id": "prone-t-raise",
+  "name": "Prone T raise",
+  "muscles": [
+   "back",
+   "shoulders"
+  ],
+  "primary": [
+   "back"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "beginner",
+  "movement": "extension",
+  "alternatives": [
+   "prone-y-raise",
+   "superman",
+   "reverse-snow-angel"
+  ],
+  "progression": "reverse-snow-angel",
+  "regression": "prone-y-raise"
+ },
+ {
+  "id": "reverse-snow-angel",
+  "name": "Reverse snow angel",
+  "muscles": [
+   "back",
+   "shoulders"
+  ],
+  "primary": [
+   "back"
+  ],
+  "equipment": [
+   "bodyweight"
+  ],
+  "difficulty": "intermediate",
+  "movement": "extension",
+  "alternatives": [
+   "prone-t-raise",
+   "prone-y-raise",
+   "superman"
+  ],
+  "progression": null,
+  "regression": "prone-t-raise"
+ },
+ {
+  "id": "treadmill-intervals",
+  "name": "Treadmill intervals",
+  "muscles": [
+   "calves",
+   "quads",
+   "glutes"
+  ],
+  "primary": [
+   "calves"
+  ],
+  "equipment": [
+   "cardio_machine"
+  ],
+  "difficulty": "beginner",
+  "movement": "conditioning",
+  "alternatives": [
+   "jumping-jacks",
+   "calf-raise",
+   "single-leg-calf-raise"
+  ],
+  "progression": null,
+  "regression": null
+ },
+ {
+  "id": "bike-intervals",
+  "name": "Stationary bike intervals",
+  "muscles": [
+   "quads",
+   "glutes",
+   "calves"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "cardio_machine"
+  ],
+  "difficulty": "beginner",
+  "movement": "conditioning",
+  "alternatives": [
+   "high-knee-march",
+   "burpee",
+   "high-knees"
+  ],
+  "progression": null,
+  "regression": null
+ },
+ {
+  "id": "rower-intervals",
+  "name": "Rowing machine intervals",
+  "muscles": [
+   "quads",
+   "back",
+   "core",
+   "glutes"
+  ],
+  "primary": [
+   "quads"
+  ],
+  "equipment": [
+   "cardio_machine"
+  ],
+  "difficulty": "intermediate",
+  "movement": "conditioning",
+  "alternatives": [
+   "burpee",
+   "high-knees",
+   "bike-intervals"
+  ],
+  "progression": null,
+  "regression": null
  }
 ]

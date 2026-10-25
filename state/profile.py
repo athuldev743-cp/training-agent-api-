@@ -4,7 +4,7 @@ from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 
 GYM_EQUIPMENT = {"barbell", "squat_rack", "cable", "machine"}
-KNOWN_EQUIPMENT = {"bodyweight", "dumbbells", "bench", "pull_up_bar", "row_bar"} | GYM_EQUIPMENT | {"full_gym"}  # full_gym = everything
+KNOWN_EQUIPMENT = {"bodyweight", "dumbbells", "bench", "pull_up_bar", "row_bar", "cardio_machine"} | GYM_EQUIPMENT | {"full_gym"}  # full_gym = everything
 KNOWN_LIMITATIONS = {"knee", "lower_back", "shoulder", "wrist", "elbow"}
 
 # not_asked / needs_clearance block workout plans; clear / cleared_by_doctor allow them.

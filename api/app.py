@@ -2,6 +2,7 @@
 import json, os, re, time
 from datetime import date
 from pathlib import Path
+from typing import Literal
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -503,6 +504,7 @@ def v1_alternatives(exercise_id: str, user: str = Depends(current_user)):
 class BuildIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     days: int | None = Field(default=None, ge=1, le=7)
+    goals: list[Literal["general", "muscle", "strength", "fat_loss", "endurance"]] | None = Field(default=None, max_length=3)
     today: date | None = None
 
 
@@ -514,7 +516,7 @@ def v1_build_program(body: BuildIn, user: str = Depends(current_user)):
         profile = s["profile"].get()
         if profile is None:
             raise HTTPException(409, "create your profile first")
-        r = start_program(exercises(), profile, s["programs"], _client_today(body.today), body.days, history=s["history"])
+        r = start_program(exercises(), profile, s["programs"], _client_today(body.today), body.days, history=s["history"], goals=body.goals)
         out = {"status": r["status"], "reply": r["reply"]}
         if r["status"] in ("ok", "active"):
             out.update(_payload(s))

@@ -50,13 +50,27 @@ def _bump(program, muscles, by_id, templates, budget):
                 if it is None:
                     continue
                 it.sets += 1
-                minutes = round(sum(_exercise_minutes(prescription_for(e.exercise_id, out.level, templates, out.goal), e.sets)
+                minutes = round(sum(_exercise_minutes(prescription_for(e.exercise_id, out.level, templates, (s.goal or out.goal)), e.sets)
                                     for e in s.exercises), 1)
                 if minutes > budget:
                     it.sets -= 1
                     continue
                 s.est_minutes = minutes
                 changed = True
+    series = {}
+    for wk in out.weeks:
+        for s in wk.sessions:
+            for e in s.exercises:
+                series.setdefault((s.day_number, e.exercise_id), []).append((wk.number, e))
+    for rows in series.values():  # sets never fall from one week to the next: clamp earlier weeks to the later minimum
+        floor = None
+        for _, e in sorted(rows, key=lambda r: -r[0]):
+            floor = e.sets if floor is None else min(floor, e.sets)
+            e.sets = floor
+    for wk in out.weeks:
+        for s in wk.sessions:
+            s.est_minutes = round(sum(_exercise_minutes(prescription_for(e.exercise_id, out.level, templates, (s.goal or out.goal)), e.sets) for e in s.exercises), 1)
+    changed = any(a.sets != b.sets for wa, wb in zip(program.weeks, out.weeks) for sa, sb in zip(wa.sessions, wb.sessions) for a, b in zip(sa.exercises, sb.exercises))
     return out, changed
 
 
@@ -88,7 +102,7 @@ def _violations(program, profile, by_id, tiers):
     return out
 
 
-def adjust_program(program, profile, history, previous, previous_rows, exercises, today):
+def adjust_program(program, profile, history, previous, previous_rows, exercises, today, rebalance=True):
     """Returns (programme, notes). The input programme is never modified; history is only read."""
     by_id = {e.id: e for e in exercises}
     cutoff = today - timedelta(days=WINDOW_DAYS)
@@ -123,7 +137,7 @@ def adjust_program(program, profile, history, previous, previous_rows, exercises
             notes.append(f"From your last 4 weeks of logs: {by_id[old].name} {verb} to {by_id[new].name}.")
         else:
             notes.append(f"From your last 4 weeks of logs: {by_id[old].name} was dropped where {by_id[new].name} would repeat a movement.")
-    behind = _behind(previous, previous_rows, rows, by_id, cutoff, today)
+    behind = _behind(previous, previous_rows, rows, by_id, cutoff, today) if rebalance else []
     if behind:
         bumped, changed = _bump(adjusted, behind, by_id, templates, profile.session_minutes)
         if changed:

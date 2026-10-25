@@ -40,6 +40,8 @@ def swap_exercise(program: Program, old_ids: set[str], new_id: str, level: str,
             if not olds:
                 continue
             changes += len(olds)
+            old_minutes = session.est_minutes
+            rx = prescription_for(new_id, level, templates, session.goal or program.goal)
             rest = [i for i in session.exercises if i.exercise_id not in old_ids]
             inserted = any(_redundant(by_id[i.exercise_id], new_ex) for i in rest)  # redundant: just drop
             items = []
@@ -57,4 +59,22 @@ def swap_exercise(program: Program, old_ids: set[str], new_id: str, level: str,
                     rest_seconds=rx.rest_seconds))
             session.exercises = items
             session.est_minutes = _minutes(items)
+            fresh = next((i for i in items if i.exercise_id == new_id), None)
+            while fresh is not None and fresh.sets > 1 and session.est_minutes > old_minutes + 1e-9:
+                fresh.sets -= 1  # a swap never makes a session longer than it was
+                session.est_minutes = _minutes(items)
+    by_day: dict[int, list] = {}
+    for wk in result.weeks:
+        for session in wk.sessions:
+            if (wk.number, session.day_number) <= after:
+                continue
+            for i in session.exercises:
+                if i.exercise_id == new_id:
+                    by_day.setdefault(session.day_number, []).append((wk.number, session, i))
+    for rows in by_day.values():  # sets never fall from one week to the next: cap earlier weeks at the later minimum
+        cap = None
+        for _, session, i in sorted(rows, key=lambda r: -r[0]):
+            cap = i.sets if cap is None else min(cap, i.sets)
+            i.sets = cap
+            session.est_minutes = _minutes(session.exercises)
     return result, changes

@@ -242,5 +242,139 @@
  ],
  "hanging-leg-raise": [
   "shoulder"
+ ],
+ "jumping-jacks": [
+  "knee"
+ ],
+ "high-knee-march": [],
+ "shadow-boxing": [
+  "shoulder"
+ ],
+ "high-knees": [
+  "knee"
+ ],
+ "mountain-climber": [
+  "wrist",
+  "shoulder"
+ ],
+ "bear-crawl": [
+  "wrist",
+  "shoulder"
+ ],
+ "plank-jack": [
+  "wrist",
+  "shoulder"
+ ],
+ "burpee": [
+  "wrist",
+  "shoulder",
+  "knee"
+ ],
+ "skater-jump": [
+  "knee"
+ ],
+ "squat-jump": [
+  "knee"
+ ],
+ "broad-jump": [
+  "knee",
+  "lower_back"
+ ],
+ "tuck-jump": [
+  "knee"
+ ],
+ "jump-lunge": [
+  "knee"
+ ],
+ "clap-push-up": [
+  "wrist",
+  "shoulder",
+  "elbow"
+ ],
+ "reverse-crunch": [
+  "lower_back"
+ ],
+ "flutter-kick": [
+  "lower_back"
+ ],
+ "bird-dog": [
+  "wrist"
+ ],
+ "russian-twist": [
+  "lower_back"
+ ],
+ "hollow-hold": [
+  "lower_back"
+ ],
+ "v-up": [
+  "lower_back"
+ ],
+ "plank-shoulder-tap": [
+  "wrist",
+  "shoulder"
+ ],
+ "side-plank-hip-drop": [
+  "shoulder"
+ ],
+ "hollow-rock": [
+  "lower_back"
+ ],
+ "wall-sit": [
+  "knee"
+ ],
+ "lateral-lunge": [
+  "knee"
+ ],
+ "cossack-squat": [
+  "knee"
+ ],
+ "curtsy-lunge": [
+  "knee"
+ ],
+ "single-leg-rdl": [
+  "lower_back"
+ ],
+ "pistol-squat": [
+  "knee"
+ ],
+ "shrimp-squat": [
+  "knee"
+ ],
+ "frog-pump": [],
+ "donkey-kick": [
+  "wrist"
+ ],
+ "single-leg-calf-raise": [],
+ "archer-push-up": [
+  "wrist",
+  "shoulder",
+  "elbow"
+ ],
+ "pseudo-planche-push-up": [
+  "wrist",
+  "shoulder",
+  "elbow"
+ ],
+ "decline-pike-push-up": [
+  "wrist",
+  "shoulder",
+  "elbow"
+ ],
+ "prone-y-raise": [
+  "lower_back"
+ ],
+ "prone-t-raise": [
+  "shoulder"
+ ],
+ "reverse-snow-angel": [
+  "lower_back",
+  "shoulder"
+ ],
+ "treadmill-intervals": [
+  "knee"
+ ],
+ "bike-intervals": [],
+ "rower-intervals": [
+  "lower_back"
  ]
 }

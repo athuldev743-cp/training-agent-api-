@@ -63,6 +63,7 @@ class ProgramSession(BaseModel):
     muscles: list[str]
     exercises: list[ProgramExercise]
     est_minutes: float
+    goal: str | None = None
 
 
 class ProgramWeek(BaseModel):
@@ -81,6 +82,10 @@ class Program(BaseModel):
     limitations: list[str]
     weeks: list[ProgramWeek]
     notes: list[str]
+    goals: list[str] = []
+    time_warning: str | None = None
+    recommended_minutes: int | None = None
+    block_mode: str | None = None
 
 
 def load_tiers(path: Path = TIER_PATH) -> dict[str, str]:
@@ -182,7 +187,7 @@ def _exercise_minutes(rx: Prescription, sets: int) -> float:
     return sets * (work + rx.rest_seconds) / 60
 
 
-def _pick(muscle, pool, chosen, used_patterns, owned, phase, tiers, level, by_id, families):
+def _pick(muscle, pool, chosen, used_patterns, owned, phase, tiers, level, by_id, families, goal="general"):
     candidates = [e for e in pool if muscle in e.primary and not _redundant(e, chosen, families)]
     if not candidates:
         return None
@@ -195,6 +200,7 @@ def _pick(muscle, pool, chosen, used_patterns, owned, phase, tiers, level, by_id
         return (
             e.movement == "isolation",                                  # compound lifts first
             0 if set(e.equipment) & owned else 1,                       # use the equipment they own
+            _goal_rank(e, goal),
             0 if (phase == "build" and tiers[e.id] == "build") else 1,  # build weeks: harder tier first
             e.movement in used_patterns,                                # variety within the session
             placement,
@@ -206,22 +212,56 @@ def _pick(muscle, pool, chosen, used_patterns, owned, phase, tiers, level, by_id
 
 
 def _build_block(phase, split_days, level, pool, owned, budget, cap, tiers, templates, goal,
-                 by_id, families, day_caps=None) -> dict[int, list[Exercise]]:
+                 by_id, families, day_caps=None, day_goals=None, avoid=None, anchors=None) -> dict[int, list[Exercise]]:
     last_week = 2 if phase == "foundation" else 4  # the block's heaviest week must still fit the budget
     block: dict[int, list[Exercise]] = {}
     seen_by_label: dict[str, set[str]] = {}
+    def _pick(*a, **k):  # goal-aware pick
+        a = list(a)
+        if any(c.movement == "hinge" and set(c.equipment) & LOADED_EQUIPMENT for c in a[2]):  # one heavy hinge per session
+            a[1] = [e for e in a[1] if not (e.movement == "hinge" and set(e.equipment) & LOADED_EQUIPMENT)]
+        return _pick_goal(*a, goal=goal, **k)
+    cond_pool = [e for e in pool if e.movement in CONDITIONING_MOVEMENTS]
+    pool = [e for e in pool if e.movement not in CONDITIONING_MOVEMENTS]
+    n_cond = GOAL_CONDITIONING.get(goal, 0)
+    used_cond: set[str] = set()
+    goal0 = goal
+    _core = [e for e in pool if "core" in e.primary]
+
+    def _wk(m):  # sets this muscle already has in the week being built (heaviest week of the block)
+        tot = sum(_sets_for_week(prescription_for(e.id, level, templates, (day_goals[dn - 1] if day_goals else goal0)), last_week)
+                  for dn, d in block.items() for e in d if m in e.primary)
+        return tot + sum(_sets_for_week(prescription_for(e.id, level, templates, goal), last_week) for e in chosen if m in e.primary)
+    core_reserve = min((_exercise_minutes(prescription_for(e.id, level, templates, goal), _sets_for_week(prescription_for(e.id, level, templates, goal), last_week)) for e in _core), default=0.0)
     for day_number, groups in enumerate(split_days, 1):
+        goal = day_goals[day_number - 1] if day_goals else goal0
+        rem = {m: sum(1 for g in split_days[day_number - 1:] if m in day_muscles(g)) for m in PRIORITY}
+
+        def _over(m, rx):  # weekly volume is shared over the days that train a muscle; the first exercise per muscle each day is always allowed
+            s = _sets_for_week(rx, last_week)
+            today = sum(_sets_for_week(prescription_for(c.id, level, templates, goal), last_week) for c in chosen if m in c.primary)
+            if today == 0:
+                return False
+            used = _wk(m) - today
+            return today + s > (WEEKLY_SET_CAP - used) // max(1, rem.get(m, 1))
+        n_cond = GOAL_CONDITIONING.get(goal, 0)
         order = _day_muscle_order(groups, day_number, cap)
-        prior = seen_by_label.get(groups[0], set())  # exercises used on earlier days of the same kind
+        _cc = [e for e in cond_pool if set(e.equipment) & owned]
+        cond_reserve = min((_exercise_minutes(prescription_for(e.id, level, templates, goal), _sets_for_week(prescription_for(e.id, level, templates, goal), last_week)) for e in _cc), default=0.0) if n_cond else 0.0
+        prior = set(seen_by_label.get(groups[0], set())) | set((avoid or {}).get(day_number, set()))  # earlier days of the same kind, plus last week's accessories
         day_cap = cap if not day_caps else min(cap, max(1, len(day_caps.get(day_number, [])) or cap))
         chosen: list[Exercise] = []
         patterns: set[str] = set()
         per_muscle: dict[str, int] = {}
         minutes = 0.0
 
+        for a_ in (anchors or {}).get(day_number, []):  # keep last week's big lifts
+            _rx = prescription_for(a_.id, level, templates, goal)
+            chosen.append(a_); patterns.add(a_.movement); minutes += _exercise_minutes(_rx, _sets_for_week(_rx, last_week))
+            for _m in a_.primary: per_muscle[_m] = per_muscle.get(_m, 0) + 1
         def try_add(muscle: str) -> bool:
             nonlocal minutes
-            if len(chosen) >= day_cap or per_muscle.get(muscle, 0) >= MAX_PER_MUSCLE:
+            if len(chosen) >= max(1, day_cap - n_cond) or per_muscle.get(muscle, 0) >= (1 if muscle == "core" else MAX_PER_MUSCLE):
                 return False
             fresh = [e for e in pool if e.id not in prior]
             ex = (_pick(muscle, fresh, chosen, patterns, owned, phase, tiers, level, by_id, families) if prior else None) \
@@ -230,7 +270,9 @@ def _build_block(phase, split_days, level, pool, owned, budget, cap, tiers, temp
                 return False
             rx = prescription_for(ex.id, level, templates, goal)
             cost = _exercise_minutes(rx, _sets_for_week(rx, last_week))
-            if minutes + cost > budget:
+            if minutes + cost > budget - cond_reserve - (core_reserve if (muscle != "core" and not any("core" in c.primary for c in chosen)) else 0.0):
+                return False
+            if any(_over(m, rx) for m in ex.primary):
                 return False
             chosen.append(ex)
             patterns.add(ex.movement)
@@ -270,6 +312,29 @@ def _build_block(phase, split_days, level, pool, owned, budget, cap, tiers, temp
                     minutes += cost
                     break
                 remaining = [e for e in remaining if e.id != ex.id]
+        # Goal extras: conditioning / plyometric work for goals that ask for it (endurance, fat loss)
+        for _ in range(n_cond):
+            if len(chosen) >= day_cap:
+                break
+            taken = {c.id for c in chosen}
+            covered = {m for c in chosen for m in c.primary}
+            day_m = day_muscles(groups) | {"core"}
+            has_ply = any(c.movement == "plyometric" for c in chosen)
+            fresh_c = [e for e in cond_pool if e.id not in taken and not _redundant(e, chosen, families)
+                       and not ("core" in e.primary and "core" in covered)
+                       and (e.movement != "plyometric" or (not has_ply and set(e.primary) <= day_m))
+                       and (e.movement == "conditioning" or not any(_over(m, prescription_for(e.id, level, templates, goal)) for m in e.primary))]
+            if not fresh_c:
+                break
+            ex = min(fresh_c, key=lambda e: (0 if (set(e.equipment) & owned and not any(c.movement in CONDITIONING_MOVEMENTS for c in chosen)) else 1, _cond_pref(e, goal), bool(set(e.primary) & covered), e.id in used_cond, e.id in prior, -DIFFICULTY_RANK[e.difficulty] if level != "beginner" else 0, e.name))
+            rx = prescription_for(ex.id, level, templates, goal)
+            cost = _exercise_minutes(rx, _sets_for_week(rx, last_week))
+            if minutes + cost > budget:
+                break
+            chosen.append(ex)
+            patterns.add(ex.movement)
+            minutes += cost
+            used_cond.add(ex.id)
         seen_by_label.setdefault(groups[0], set()).update(e.id for e in chosen)
         block[day_number] = chosen
     return block
@@ -296,7 +361,7 @@ def _label(split: str, groups: list[str]) -> str:
     return " + ".join(g.replace("_", " ") for g in groups).capitalize()
 
 
-def build_program(exercises: list[Exercise], profile: UserProfile, days_per_week: int | None = None) -> dict:
+def build_program(exercises: list[Exercise], profile: UserProfile, days_per_week: int | None = None, goals: list[str] | None = None, _probe: bool = False, _force_split: str | None = None, avoid_ids: set[str] | None = None) -> dict:
     gate = screening_gate(profile)
     if gate:
         return {"status": "blocked_health", "reply": gate, "program": None}
@@ -314,21 +379,36 @@ def build_program(exercises: list[Exercise], profile: UserProfile, days_per_week
     split, used_days, day_note = choose_split(level, days_per_week)
     if day_note:
         notes.append(day_note)
+    if _force_split:
+        split = _force_split
+    elif split == "push_pull_legs":
+        _sp = build_program(exercises, profile.model_copy(update={"session_minutes": 90}), days_per_week, goals, _probe=True, _force_split="push_pull_legs")
+        _thin = _thin_days(_sp["program"], exercises) if _sp["program"] is not None else []
+        if _thin:
+            split = "full_body" if used_days <= 3 else "upper_lower"
+            notes.append(f"With your equipment the {' and '.join(_thin)} day of a push/pull/legs split would have too few exercises, so I used the {SPLIT_NAMES[split]} split instead. A pull-up bar, a row bar or dumbbells would unlock proper pulling.")
 
     tiers = load_tiers()
     templates = load_templates()
     by_id = {e.id: e for e in exercises}
     families = exercise_families(exercises)
     cap = MAX_EXERCISES[level]
-    goal = profile.goal
+    goals = _clean_goals(goals, profile.goal)
+    goal = goals[0]
     split_days = SPLITS[split][:used_days]
+    day_goals, dropped = assign_day_goals(split_days, goals)
+    if dropped:
+        notes.append(f"Only {used_days} training days: {', '.join(g.replace('_', ' ') for g in dropped)} did not fit. Add a training day to include it.")
     owned = set(equipment) - {"bodyweight"}
 
     blocks = {}
     for phase in ("foundation", "build"):
         pool = allowed_exercises(exercises, level, equipment, profile.limitations, phase, tiers)
         blocks[phase] = _build_block(phase, split_days, level, pool, owned, profile.session_minutes,
-                                     cap, tiers, templates, goal, by_id, families, blocks.get("foundation"))
+                                     cap, tiers, templates, goal, by_id, families, blocks.get("foundation"), day_goals=day_goals, avoid={d: set(avoid_ids or ()) for d in range(1, len(split_days) + 1)})
+        blocks[phase + "_b"] = _build_block(phase, split_days, level, pool, owned, profile.session_minutes,
+                                            cap, tiers, templates, goal, by_id, families, blocks.get("foundation"), day_goals=day_goals,
+                                            avoid={d: ids | set(avoid_ids or ()) for d, ids in _variant_avoid(blocks[phase]).items()}, anchors={d: x[:KEEP_ANCHORS] for d, x in blocks[phase].items()})
     if not all(len(day) > 0 for block in blocks.values() for day in block.values()):
         return {"status": "no_exercises", "program": None,
                 "reply": "I couldn't build a full programme with your equipment, level and limitations: some training days would have no exercises. A doctor or physiotherapist can tell you which exercises suit you."}
@@ -340,8 +420,8 @@ def build_program(exercises: list[Exercise], profile: UserProfile, days_per_week
         for day_number, groups in enumerate(split_days, 1):
             items = []
             minutes = 0.0
-            for ex in blocks[phase][day_number]:
-                rx = prescription_for(ex.id, level, templates, goal)
+            for ex in blocks[phase if week in (1, 3) else phase + "_b"][day_number]:
+                rx = prescription_for(ex.id, level, templates, day_goals[day_number - 1])
                 sets = _sets_for_week(rx, week)
                 lo, hi = _aim_range(rx, week)
                 minutes += _exercise_minutes(rx, sets)
@@ -350,7 +430,7 @@ def build_program(exercises: list[Exercise], profile: UserProfile, days_per_week
                     rep_min=rx.rep_min, rep_max=rx.rep_max, aim_low=lo, aim_high=hi,
                     rest_seconds=rx.rest_seconds))
             sessions.append(ProgramSession(
-                day_number=day_number, weekday=WEEKDAYS[used_days][day_number - 1],
+                day_number=day_number, goal=day_goals[day_number - 1], weekday=WEEKDAYS[used_days][day_number - 1],
                 label=_label(split, groups), muscles=_day_muscle_order(groups, day_number, cap),
                 exercises=items, est_minutes=round(minutes, 1)))
         weeks.append(ProgramWeek(number=week, phase=phase, effort=EFFORT[week], sessions=sessions))
@@ -366,15 +446,27 @@ def build_program(exercises: list[Exercise], profile: UserProfile, days_per_week
                          "filled by other muscles first. A longer session would make room for it.")
     avg_minutes = sum(s.est_minutes for s in weeks[0].sessions) / len(weeks[0].sessions)
     if avg_minutes < 0.5 * profile.session_minutes:
-        notes.append(f"Your sessions are about {avg_minutes:.0f} minutes, shorter than the {profile.session_minutes} you set, because I cap a {level} session at {cap} exercises. Use the spare time for warm-up and mobility." if any(len(s.exercises) >= cap for wk in weeks for s in wk.sessions) else f"Your sessions are about {avg_minutes:.0f} minutes, shorter than the {profile.session_minutes} you set, because few exercises in my library match your level and equipment. More equipment would unlock longer sessions.")
+        notes.append(f"Your sessions are about {avg_minutes:.0f} minutes, shorter than the {profile.session_minutes} you set, because I cap a {level} session at {cap} exercises. Use the spare time for warm-up and mobility." if (sum(len(s.exercises) >= cap for wk in weeks for s in wk.sessions) >= 0.5 * sum(len(wk.sessions) for wk in weeks)) else f"Your sessions are about {avg_minutes:.0f} minutes, shorter than the {profile.session_minutes} you set, because few exercises in my library match your level and equipment. More equipment would unlock longer sessions.")
     peak = max(s.est_minutes for wk in weeks for s in wk.sessions)
     capped = any(len(s.exercises) >= cap for wk in weeks for s in wk.sessions)
     if capped and avg_minutes >= 0.5 * profile.session_minutes and peak < 0.75 * profile.session_minutes:
         notes.append(f"Sessions top out at about {peak:.0f} minutes: I cap a {level} session at {cap} exercises, so the rest of your {profile.session_minutes} minutes is unused. Spend it on warm-up and mobility.")
     notes.append("After week 4, take an easier week (fewer sets, easy effort) before starting the next programme.")
 
-    program = Program(goal=profile.goal, level=level, split=split, days_per_week=used_days, equipment=list(equipment),
+    program = Program(goal=goal, goals=[g for g in goals if g in day_goals], level=level, split=split, days_per_week=used_days, equipment=list(equipment),
                       limitations=list(profile.limitations), weeks=weeks, notes=notes)
+    if not _probe and profile.session_minutes < 90:
+        probe = build_program(exercises, profile.model_copy(update={"session_minutes": 90}), days_per_week, goals, _probe=True, _force_split=split)
+        if probe["program"] is not None:
+            pw, mine = probe["program"].weeks[0].sessions, weeks[0].sessions
+            need = sum(s.est_minutes for s in pw) / len(pw)
+            lost = sum(len(s.exercises) for s in pw) / len(pw) - sum(len(s.exercises) for s in mine) / len(mine)
+            if lost >= 1 and profile.session_minutes < 0.85 * need:
+                program.recommended_minutes = ((int(need) + 4) // 5) * 5
+                program.time_warning = (f"{' + '.join(g.replace('_', ' ') for g in program.goals)} needs about {program.recommended_minutes} minutes per session "
+                                        f"to cover everything. You set {profile.session_minutes}, so each session has about {lost:.0f} fewer exercises than the full plan. "
+                                        f"Train at least {program.recommended_minutes} minutes, or drop a goal.")
+                program.notes.append("Time check: " + program.time_warning)
     return {"status": "ok", "reply": format_overview(program), "program": program}
 
 
@@ -384,7 +476,7 @@ def format_overview(program: Program) -> str:
     avoid = ", ".join(a.replace("_", " ") for a in program.limitations) or "nothing"
     lines = [
         f"Your 4-week {SPLIT_NAMES[program.split]} programme: {program.days_per_week} days a week ({days}).",
-        f"Level: {program.level}. Goal: {program.goal.replace('_', ' ')}. Equipment: {equipment}. Avoiding exercises that load: {avoid}.",
+        f"Level: {program.level}. {_goal_text(program)}. Equipment: {equipment}. Avoiding exercises that load: {avoid}.",
         "Weeks 1-2: lower effort and fewer sets (beginners also stay on foundation exercises). Weeks 3-4: harder variations and more sets.",
         "Control every rep: about 2 seconds down and 1 second up, no bouncing.",
     ]
@@ -431,3 +523,97 @@ def choose_split(level: str, days: int | None) -> tuple[str, int, str | None]:
     else:
         name = "push_pull_legs"
     return name, used, (" ".join(notes) or None)
+
+
+from functools import lru_cache as _lru_cache
+CONDITIONING_MOVEMENTS = {"conditioning", "plyometric"}
+WEEKLY_SET_CAP = 20  # sets per muscle per week in the heaviest week (the audited baseline)
+GOAL_CONDITIONING = {"endurance": 2, "fat_loss": 2}  # conditioning exercises added per session
+
+
+@_lru_cache(maxsize=1)
+def _exercise_templates():
+    return load_templates()
+
+
+def _goal_rank(e, goal):
+    """0 = preferred for this goal. Strength likes hard low-rep work; endurance and fat loss avoid skill moves."""
+    try:
+        t = _exercise_templates().get(e.id, "")
+    except Exception:
+        t = ""
+    if goal == "strength":
+        return 0 if t in ("hard_bodyweight", "skill_bodyweight", "loaded_compound") else 1
+    if goal == "fat_loss":  # metabolic work: big multi-muscle exercises first
+        return 0 if t in ("bodyweight_compound", "loaded_compound", "loaded_unilateral") and len(e.muscles) >= 2 else 1
+    if goal == "endurance":
+        return 0 if t in ("bodyweight_compound", "core_reps", "loaded_compound", "loaded_unilateral", "isolation", "hold") else 1
+    if goal == "muscle":
+        return 0 if t in ("loaded_compound", "bodyweight_compound", "isolation") else 1
+    return 0
+
+
+_pick_goal = _pick
+
+
+def _clean_goals(goals, default):
+    from engine.prescription import GOALS as _GOALS
+    out = [g for g in dict.fromkeys(goals or []) if g in _GOALS][:3]
+    return out or [default]
+
+
+def assign_day_goals(split_days, goals):
+    """Goal per training day. The nth day of the same kind cycles through the goals, so each goal gets upper and lower
+    days. A goal left without a day takes a day from the end that another goal has twice; if none fits it is dropped."""
+    seen, out = {}, []
+    for groups in split_days:
+        k = groups[0]
+        out.append(goals[seen.get(k, 0) % len(goals)])
+        seen[k] = seen.get(k, 0) + 1
+    dropped = []
+    for g in [g for g in goals if g not in out]:
+        j = next((j for j in range(len(out) - 1, 0, -1) if out.count(out[j]) > 1), None)
+        if j is None:
+            dropped.append(g)
+        else:
+            out[j] = g
+    return out, dropped
+
+
+def _goal_text(program):
+    gs = [g.replace("_", " ") for g in (program.goals or [program.goal])]
+    return ("Goals: " + ", ".join(gs)) if len(gs) > 1 else "Goal: " + gs[0]
+
+
+SPLITS = {**SPLITS, "upper_lower": list(SPLITS["upper_lower"][:4]) + [["upper_body"], ["lower_body", "core"]]}
+
+
+def _thin_days(program, exercises, min_exercises=4):
+    """Labels of days that end up with fewer than min_exercises non-conditioning exercises in week 4."""
+    by_id = {e.id: e for e in exercises}
+    out = set()
+    for s in program.weeks[3].sessions:
+        if sum(1 for e in s.exercises if by_id[e.exercise_id].movement not in CONDITIONING_MOVEMENTS) < min_exercises:
+            out.add(s.label.lower())
+    return sorted(out)
+
+
+LOADED_EQUIPMENT = {"barbell", "dumbbells", "machine", "cable"}
+
+
+HIIT_CONDITIONING = {"burpee", "mountain-climber", "high-knees", "plank-jack", "skater-jump"}
+
+
+def _cond_pref(e, goal):
+    """Fat loss prefers high-intensity bursts; endurance prefers sustained, lower-impact work. 0 = preferred."""
+    hi = e.movement == "plyometric" or e.id in HIIT_CONDITIONING
+    return 0 if (goal == "fat_loss") == hi else 1
+
+
+KEEP_ANCHORS = 3
+
+
+def _variant_avoid(block):
+    """Per day: the exercises after the first KEEP_ANCHORS. The big lifts stay for the second week of a phase so they
+    can progress; the accessories rotate."""
+    return {d: {e.id for e in ex[KEEP_ANCHORS:]} for d, ex in block.items()}

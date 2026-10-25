@@ -105,6 +105,25 @@ GOAL_OVERRIDES = {
 }
 
 
+TEMPLATES["conditioning"] = ("seconds", {"beginner": (20, 30, 2, 3, 40), "intermediate": (30, 40, 3, 4, 30), "advanced": (30, 45, 3, 5, 30)})
+TEMPLATES["plyometric"] = ("reps", {"beginner": (5, 8, 2, 3, 60), "intermediate": (6, 10, 3, 4, 60), "advanced": (6, 12, 3, 5, 75)})
+TEMPLATES["skill_bodyweight"] = ("reps", {"beginner": (2, 4, 2, 3, 120), "intermediate": (3, 6, 3, 4, 120), "advanced": (4, 8, 3, 5, 120)})
+GOAL_OVERRIDES["endurance"]["conditioning"] = {"beginner": (30, 40, 2, 3, 30), "intermediate": (40, 50, 3, 4, 20), "advanced": (45, 60, 3, 5, 20)}
+GOAL_OVERRIDES["fat_loss"]["conditioning"] = {"beginner": (30, 40, 2, 3, 30), "intermediate": (40, 45, 3, 4, 25), "advanced": (40, 50, 3, 5, 20)}
+GOAL_OVERRIDES["strength"]["conditioning"] = {"beginner": (15, 20, 2, 3, 60), "intermediate": (15, 20, 3, 4, 60), "advanced": (15, 20, 3, 4, 60)}
+
+
+TEMPLATES["cardio"] = ("seconds", {"beginner": (90, 150, 2, 3, 60), "intermediate": (120, 180, 2, 3, 60), "advanced": (150, 210, 2, 3, 60)})
+GOAL_OVERRIDES["endurance"]["cardio"] = {"beginner": (150, 210, 2, 3, 45), "intermediate": (210, 270, 2, 3, 45), "advanced": (270, 360, 2, 3, 45)}
+GOAL_OVERRIDES["fat_loss"]["cardio"] = {"beginner": (60, 90, 2, 3, 60), "intermediate": (90, 120, 2, 3, 60), "advanced": (90, 150, 2, 3, 60)}
+
+
+TEMPLATES["loaded_unilateral"] = ("reps", {"beginner": (8, 12, 2, 3, 90), "intermediate": (8, 12, 3, 4, 90), "advanced": (6, 10, 3, 5, 120)})
+GOAL_OVERRIDES["strength"]["loaded_unilateral"] = {"beginner": (6, 10, 2, 3, 90), "intermediate": (6, 10, 3, 4, 120), "advanced": (5, 8, 3, 5, 150)}
+GOAL_OVERRIDES["fat_loss"]["loaded_unilateral"] = {"beginner": (10, 15, 2, 3, 60), "intermediate": (10, 15, 3, 4, 60), "advanced": (10, 15, 3, 5, 60)}
+GOAL_OVERRIDES["endurance"]["loaded_unilateral"] = {"beginner": (12, 18, 2, 3, 45), "intermediate": (15, 20, 3, 4, 45), "advanced": (15, 20, 3, 4, 45)}
+
+
 class Prescription(BaseModel):
     template: str
     unit: Literal["reps", "seconds"]

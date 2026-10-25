@@ -672,5 +672,341 @@
   "source": null,
   "license": null,
   "attribution": null
+ },
+ "jumping-jacks": {
+  "alt": "Jumping jacks",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "high-knee-march": {
+  "alt": "High-knee march",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "shadow-boxing": {
+  "alt": "Shadow boxing",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "high-knees": {
+  "alt": "High knees",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "mountain-climber": {
+  "alt": "Mountain climber",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "bear-crawl": {
+  "alt": "Bear crawl",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "plank-jack": {
+  "alt": "Plank jack",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "burpee": {
+  "alt": "Burpee",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "skater-jump": {
+  "alt": "Skater jump",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "squat-jump": {
+  "alt": "Squat jump",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "broad-jump": {
+  "alt": "Broad jump",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "tuck-jump": {
+  "alt": "Tuck jump",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "jump-lunge": {
+  "alt": "Jump lunge",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "clap-push-up": {
+  "alt": "Clap push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "reverse-crunch": {
+  "alt": "Reverse crunch",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "flutter-kick": {
+  "alt": "Flutter kick",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "bird-dog": {
+  "alt": "Bird dog",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "russian-twist": {
+  "alt": "Russian twist",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "hollow-hold": {
+  "alt": "Hollow body hold",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "v-up": {
+  "alt": "V-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "plank-shoulder-tap": {
+  "alt": "Plank shoulder tap",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "side-plank-hip-drop": {
+  "alt": "Side plank hip drop",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "hollow-rock": {
+  "alt": "Hollow rock",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "wall-sit": {
+  "alt": "Wall sit",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "lateral-lunge": {
+  "alt": "Lateral lunge",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "cossack-squat": {
+  "alt": "Cossack squat",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "curtsy-lunge": {
+  "alt": "Curtsy lunge",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "single-leg-rdl": {
+  "alt": "Single-leg Romanian deadlift",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "pistol-squat": {
+  "alt": "Pistol squat",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "shrimp-squat": {
+  "alt": "Shrimp squat",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "frog-pump": {
+  "alt": "Frog pump",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "donkey-kick": {
+  "alt": "Donkey kick",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "single-leg-calf-raise": {
+  "alt": "Single-leg calf raise",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "archer-push-up": {
+  "alt": "Archer push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "pseudo-planche-push-up": {
+  "alt": "Pseudo planche push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "decline-pike-push-up": {
+  "alt": "Decline pike push-up",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "prone-y-raise": {
+  "alt": "Prone Y raise",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "prone-t-raise": {
+  "alt": "Prone T raise",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "reverse-snow-angel": {
+  "alt": "Reverse snow angel",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "treadmill-intervals": {
+  "alt": "Treadmill intervals",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "bike-intervals": {
+  "alt": "Stationary bike intervals",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
+ },
+ "rower-intervals": {
+  "alt": "Rowing machine intervals",
+  "video_url": null,
+  "image_urls": [],
+  "source": null,
+  "license": null,
+  "attribution": null
  }
 }

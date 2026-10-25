@@ -57,15 +57,27 @@ def swap_level(action: str, level: str) -> str:
 
 
 def start_program(exercises: list[Exercise], profile: UserProfile, programs: ProgramStore,
-                  today: date, days: int | None = None, history=None) -> dict:
-    result = build_program(exercises, profile, days)
+                  today: date, days: int | None = None, history=None, goals: list[str] | None = None) -> dict:
+    if goals is None:  # keep the goals chosen for the last programme while the main goal is unchanged
+        prev = programs.latest_program()
+        if prev is not None and prev["program"].goals and prev["program"].goals[0] == profile.goal:
+            goals = list(prev["program"].goals)
+    prev = programs.active_program() or programs.latest_program()
+    prev_rows = programs.sessions(prev["id"]) if prev else []
+    done_block = prev is not None and bool(prev_rows) and not any(r["status"] == "planned" for r in prev_rows)
+    from engine.next_block import accessory_ids
+    result = build_program(exercises, profile, days, goals=goals, avoid_ids=accessory_ids(prev["program"]) if done_block else None)
     if result["status"] != "ok":
         return {"status": result["status"], "reply": result["reply"]}
     if history is not None:  # use the last 4 weeks of logs: promote, step back, rebalance
         from engine.history_plan import adjust_program
-        prev = programs.active_program()
-        prev_rows = programs.sessions(prev["id"]) if prev else []
-        result["program"], extra = adjust_program(result["program"], profile, history, prev, prev_rows, exercises, today)
+        from engine.next_block import is_ease
+        result["program"], extra = adjust_program(result["program"], profile, history, prev, prev_rows, exercises, today, rebalance=not (done_block and is_ease(prev_rows, history)))
+        if done_block:
+            from engine.next_block import apply_next_block
+            result["program"], _note = apply_next_block(result["program"], profile, prev, prev_rows, history, exercises, today)
+            if _note:
+                extra = list(extra) + [_note]
         result["reply"] += "".join(f"\nNote: {n}" for n in extra)
     pid = programs.save_program(result["program"], today)
     week1 = [_fmt_date(r["planned_date"]) for r in programs.sessions(pid) if r["week"] == 1]
