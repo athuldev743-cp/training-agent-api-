@@ -219,10 +219,12 @@
  "overhead-triceps-extension": {
   "alt": "Overhead triceps extension",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://wger.de/media/exercise-images/1519/fab7f641-27d4-40b5-8edd-1a0a137bfd94.gif"
+  ],
+  "source": "https://wger.de",
+  "license": "CC-BY-SA 4",
+  "attribution": "Images: benjamin.yildiz@proton.me, CC-BY-SA 4 (wger.de)"
  },
  "bodyweight-squat": {
   "alt": "Bodyweight squat",
@@ -260,18 +262,23 @@
  "bulgarian-split-squat": {
   "alt": "Bulgarian split squat",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://wger.de/media/exercise-images/988/6283b258-a4d7-4833-84f7-a38987022d3d.png"
+  ],
+  "source": "https://wger.de",
+  "license": "CC-BY-SA 4",
+  "attribution": "Images: Franpol, CC-BY-SA 4 (wger.de)"
  },
  "reverse-lunge": {
   "alt": "Reverse lunge",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://wger.de/media/exercise-images/999/d0931eb3-8db0-4049-bb08-aa4036072056.jfif",
+   "https://wger.de/media/exercise-images/999/8548b2d2-004d-48b4-95fd-b1b25f4e53d0.jfif"
+  ],
+  "source": "https://wger.de",
+  "license": "CC-BY-SA 4",
+  "attribution": "Images: philip, CC-BY-SA 4 (wger.de)"
  },
  "dumbbell-lunge": {
   "alt": "Dumbbell lunge",
@@ -287,10 +294,13 @@
  "dumbbell-romanian-deadlift": {
   "alt": "Dumbbell Romanian deadlift",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "glute-bridge": {
   "alt": "Glute bridge",
@@ -317,10 +327,13 @@
  "hip-thrust": {
   "alt": "Hip thrust",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Hip_Thrust/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Hip_Thrust/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "calf-raise": {
   "alt": "Calf raise",
@@ -382,10 +395,12 @@
  "close-grip-push-up": {
   "alt": "Close-grip push-up",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://wger.de/media/exercise-images/1086/b2ee8d9b-0480-4992-8494-c223b37c2696.jpg"
+  ],
+  "source": "https://wger.de",
+  "license": "CC-BY-SA 4",
+  "attribution": "Images: philip, CC-BY-SA 4 (wger.de)"
  },
  "hamstring-walkout": {
   "alt": "Hamstring walkout",
@@ -398,10 +413,13 @@
  "bodyweight-good-morning": {
   "alt": "Bodyweight good morning",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Good_Morning/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Good_Morning/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "plank-to-down-dog": {
   "alt": "Plank to downward dog",
@@ -444,10 +462,13 @@
  "underhand-inverted-row": {
   "alt": "Underhand inverted row",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Inverted_Row/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Inverted_Row/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "knee-push-up": {
   "alt": "Knee push-up",
@@ -460,74 +481,101 @@
  "barbell-back-squat": {
   "alt": "Barbell back squat",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Squat/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Squat/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "leg-press": {
   "alt": "Leg press",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "barbell-bench-press": {
   "alt": "Barbell bench press",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Bench_Press_-_Medium_Grip/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Bench_Press_-_Medium_Grip/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "machine-chest-press": {
   "alt": "Machine chest press",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Machine_Bench_Press/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Machine_Bench_Press/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "barbell-overhead-press": {
   "alt": "Barbell overhead press",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Shoulder_Press/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Shoulder_Press/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "machine-shoulder-press": {
   "alt": "Machine shoulder press",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Machine_Shoulder_Military_Press/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Machine_Shoulder_Military_Press/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "barbell-row": {
   "alt": "Barbell row",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Barbell_Row/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Barbell_Row/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "lat-pulldown": {
   "alt": "Lat pulldown",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "seated-cable-row": {
   "alt": "Seated cable row",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Cable_Rows/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Cable_Rows/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "machine-row": {
   "alt": "Machine row",
@@ -540,114 +588,156 @@
  "barbell-romanian-deadlift": {
   "alt": "Barbell Romanian deadlift",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "barbell-deadlift": {
   "alt": "Barbell deadlift",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Deadlift/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Deadlift/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "barbell-hip-thrust": {
   "alt": "Barbell hip thrust",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Hip_Thrust/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Hip_Thrust/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "machine-leg-curl": {
   "alt": "Machine leg curl",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lying_Leg_Curls/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lying_Leg_Curls/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "machine-leg-extension": {
   "alt": "Machine leg extension",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "machine-calf-raise": {
   "alt": "Machine standing calf raise",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Calf_Raises/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Calf_Raises/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "dumbbell-calf-raise": {
   "alt": "Dumbbell standing calf raise",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Dumbbell_Calf_Raise/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Dumbbell_Calf_Raise/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "cable-chest-fly": {
   "alt": "Cable chest fly",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Crossover/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Crossover/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "machine-pec-deck": {
   "alt": "Machine pec deck",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Butterfly/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Butterfly/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "cable-triceps-pushdown": {
   "alt": "Cable triceps pushdown",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "cable-biceps-curl": {
   "alt": "Cable biceps curl",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Biceps_Cable_Curl/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Biceps_Cable_Curl/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "barbell-curl": {
   "alt": "Barbell curl",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Curl/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Curl/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "face-pull": {
   "alt": "Cable face pull",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Face_Pull/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Face_Pull/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "cable-lateral-raise": {
   "alt": "Cable lateral raise",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Seated_Lateral_Raise/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Seated_Lateral_Raise/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "dumbbell-bulgarian-split-squat": {
   "alt": "Dumbbell Bulgarian split squat",
@@ -660,18 +750,24 @@
  "cable-crunch": {
   "alt": "Cable crunch",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Crunch/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Crunch/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "hanging-leg-raise": {
   "alt": "Hanging leg raise",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hanging_Leg_Raise/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hanging_Leg_Raise/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "jumping-jacks": {
   "alt": "Jumping jacks",
@@ -700,18 +796,23 @@
  "high-knees": {
   "alt": "High knees",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://wger.de/media/exercise-images/983/16245344-9957-4a24-8d61-f9939ed5f964.png"
+  ],
+  "source": "https://wger.de",
+  "license": "CC-BY-SA 4",
+  "attribution": "Images: wger contributors, CC-BY-SA 4 (wger.de)"
  },
  "mountain-climber": {
   "alt": "Mountain climber",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Mountain_Climbers/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Mountain_Climbers/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "bear-crawl": {
   "alt": "Bear crawl",
@@ -748,10 +849,13 @@
  "squat-jump": {
   "alt": "Squat jump",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Freehand_Jump_Squat/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Freehand_Jump_Squat/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "broad-jump": {
   "alt": "Broad jump",
@@ -764,42 +868,57 @@
  "tuck-jump": {
   "alt": "Tuck jump",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Knee_Tuck_Jump/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Knee_Tuck_Jump/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "jump-lunge": {
   "alt": "Jump lunge",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Split_Jump/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Split_Jump/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "clap-push-up": {
   "alt": "Clap push-up",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plyo_Push-up/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plyo_Push-up/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "reverse-crunch": {
   "alt": "Reverse crunch",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Crunch/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Crunch/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "flutter-kick": {
   "alt": "Flutter kick",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Flutter_Kicks/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Flutter_Kicks/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "bird-dog": {
   "alt": "Bird dog",
@@ -812,10 +931,13 @@
  "russian-twist": {
   "alt": "Russian twist",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Russian_Twist/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Russian_Twist/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "hollow-hold": {
   "alt": "Hollow body hold",
@@ -836,10 +958,12 @@
  "plank-shoulder-tap": {
   "alt": "Plank shoulder tap",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://wger.de/media/exercise-images/1091/50c8912d-54ef-46c9-99d1-633b6196aa1e.jpg"
+  ],
+  "source": "https://wger.de",
+  "license": "CC-BY-SA 4",
+  "attribution": "Images: clafal, CC-BY-SA 4 (wger.de)"
  },
  "side-plank-hip-drop": {
   "alt": "Side plank hip drop",
@@ -900,10 +1024,13 @@
  "pistol-squat": {
   "alt": "Pistol squat",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kettlebell_Pistol_Squat/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kettlebell_Pistol_Squat/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "shrimp-squat": {
   "alt": "Shrimp squat",
@@ -988,25 +1115,34 @@
  "treadmill-intervals": {
   "alt": "Treadmill intervals",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Running_Treadmill/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Running_Treadmill/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "bike-intervals": {
   "alt": "Stationary bike intervals",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bicycling_Stationary/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bicycling_Stationary/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  },
  "rower-intervals": {
   "alt": "Rowing machine intervals",
   "video_url": null,
-  "image_urls": [],
-  "source": null,
-  "license": null,
-  "attribution": null
+  "image_urls": [
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rowing_Stationary/0.jpg",
+   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rowing_Stationary/1.jpg"
+  ],
+  "source": "https://github.com/yuhonas/free-exercise-db",
+  "license": "Unlicense (public domain)",
+  "attribution": "Images: free-exercise-db (public domain)"
  }
 }
