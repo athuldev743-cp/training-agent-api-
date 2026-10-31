@@ -376,6 +376,16 @@ from engine.swap_checks import check_swap
 from rag.search import DIFFICULTY_RANK, search_exercises
 from state.profile import KNOWN_EQUIPMENT, KNOWN_LIMITATIONS, UserProfile
 
+_CLIPS = {}
+def _clip_names():
+    if "n" not in _CLIPS:
+        try: _CLIPS["n"] = {p.stem for p in (Path(__file__).resolve().parent.parent / "data" / "clips").glob("*.mp4")}
+        except Exception: _CLIPS["n"] = set()
+    return _CLIPS["n"]
+def _clips(ex_id):
+    n = _clip_names()
+    if ex_id not in n: return None
+    return {"loop": "/v1/clips/" + ex_id, "orbit": ("/v1/clips/" + ex_id + "_orbit") if (ex_id + "_orbit") in n else None}
 _ANIM = {}
 def _anim(ex_id):
     if "data" not in _ANIM:
@@ -403,7 +413,7 @@ def _ex_summary(e):
 def _ex_detail(e):
     secondary = [m for m in e.muscles if m not in e.primary]
     return {**e.model_dump(mode="json"), "secondary": secondary,
-            "muscle_map": {"primary": list(e.primary), "secondary": secondary}, "media": _media(e.id), "animation": _anim(e.id)}
+            "muscle_map": {"primary": list(e.primary), "secondary": secondary}, "media": _media(e.id), "animation": _anim(e.id), "clips": _clips(e.id)}
 
 
 def _swap_context(profile):
@@ -482,6 +492,14 @@ def v1_exercises(muscle: str | None = None, equipment: str | None = None, max_di
     equip = None if equipment is None else [x.strip() for x in equipment.split(",") if x.strip()]
     found = search_exercises(exercises(), muscle=muscle, available_equipment=equip, max_difficulty=max_difficulty, query=q, limit=limit)
     return {"count": len(found), "exercises": [_ex_summary(e) for e in found]}
+
+
+@app.get("/v1/clips/{name}")
+def clip_file(name: str):
+    from fastapi.responses import FileResponse
+    if not re.fullmatch(r"[a-z0-9_-]{1,80}", name) or name not in _clip_names(): raise HTTPException(404, "no such clip")
+    return FileResponse(Path(__file__).resolve().parent.parent / "data" / "clips" / (name + ".mp4"), media_type="video/mp4",
+                        headers={"Cache-Control": "public, max-age=86400"})
 
 
 @app.get("/v1/exercises/{exercise_id}")
