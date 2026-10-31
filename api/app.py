@@ -376,6 +376,13 @@ from engine.swap_checks import check_swap
 from rag.search import DIFFICULTY_RANK, search_exercises
 from state.profile import KNOWN_EQUIPMENT, KNOWN_LIMITATIONS, UserProfile
 
+_ANIM = {}
+def _anim(ex_id):
+    if "data" not in _ANIM:
+        try: _ANIM["data"] = json.loads((Path(__file__).resolve().parent.parent / "data" / "exercise_animations.json").read_text(encoding="utf-8"))
+        except Exception: _ANIM["data"] = {}
+    return _ANIM["data"].get(ex_id)
+
 _MEDIA = {}
 
 
@@ -396,7 +403,7 @@ def _ex_summary(e):
 def _ex_detail(e):
     secondary = [m for m in e.muscles if m not in e.primary]
     return {**e.model_dump(mode="json"), "secondary": secondary,
-            "muscle_map": {"primary": list(e.primary), "secondary": secondary}, "media": _media(e.id)}
+            "muscle_map": {"primary": list(e.primary), "secondary": secondary}, "media": _media(e.id), "animation": _anim(e.id)}
 
 
 def _swap_context(profile):
