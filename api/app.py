@@ -502,6 +502,14 @@ def clip_file(name: str):
                         headers={"Cache-Control": "public, max-age=86400"})
 
 
+@app.get("/v1/thumbs/{name}")
+def thumb_file(name: str):
+    from fastapi.responses import FileResponse
+    p = Path(__file__).resolve().parent.parent / "data" / "clips" / (name + "_thumb.jpg")
+    if not re.fullmatch(r"[a-z0-9_-]{1,80}", name) or not p.is_file(): raise HTTPException(404, "no such thumbnail")
+    return FileResponse(p, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
+
+
 @app.get("/v1/exercises/{exercise_id}")
 def v1_exercise(exercise_id: str, user: str = Depends(current_user)):
     e = next((x for x in exercises() if x.id == exercise_id), None)
