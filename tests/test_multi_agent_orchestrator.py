@@ -31,6 +31,9 @@ def make_graph(fitness=None, nutrition=None):
 def test_classifies_fitness_only():
     assert classify_request("Suggest a workout routine") == [AgentName.FITNESS]
 
+def test_classifies_progressive_overload_as_fitness():
+    assert classify_request("What is progressive overload?") == [AgentName.FITNESS]
+
 
 def test_classifies_nutrition_only():
     assert classify_request("How much protein should meals contain?") == [AgentName.NUTRITION]
