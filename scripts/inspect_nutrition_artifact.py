@@ -72,7 +72,7 @@ def main() -> None:
         "long_document_split_into_multiple_chunks": len(long_records) >= 3,
         "long_document_overlap_at_least_150_chars": bool(overlap_sizes) and all(size >= 150 for size in overlap_sizes),
         "pdf_extracts_both_page_numbers": pdf_pages == [1, 2],
-        "pdf_page_text_is_not_mixed": len(pdf_records) == 2 and all(record.page in (1, 2) for record in pdf_records),
+        "pdf_page_text_matches_page_numbers": len(pdf_records) == 2 and any(record.page == 1 and "PAGE ONE" in record.text for record in pdf_records) and any(record.page == 2 and "PAGE TWO" in record.text for record in pdf_records),
     }
     report = {
         "module": "module-2-nutrition-ingestion",
