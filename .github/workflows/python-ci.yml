@@ -45,8 +45,9 @@ jobs:
 
       - name: Run tests
         run: |
-          mkdir -p artifacts/module-4
+          mkdir -p artifacts/module-4 artifacts/module-5
           python -m pytest -q --junitxml=artifacts/module-4/pytest-junit.xml
+          cp artifacts/module-4/pytest-junit.xml artifacts/module-5/pytest-junit.xml
 
       - name: Generate long-document and multi-page PDF fixtures
         if: matrix.python-version == '3.13'
