@@ -135,8 +135,8 @@ class NutritionAgent:
             # Only use explicitly stored, non-clinical coaching context. Never infer
             # allergies, diagnoses, medications, or dietary restrictions.
             profile_context = (
-                "\\n\\nVALIDATED PROFILE CONTEXT (use only when directly relevant):\\n"
-                f"goal: {request.profile.goal}\\n"
+                "\n\nVALIDATED PROFILE CONTEXT (use only when directly relevant):\n"
+                f"goal: {request.profile.goal}\n"
                 f"experience: {request.profile.experience}"
             )
         try:
