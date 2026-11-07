@@ -83,7 +83,7 @@ def test_extraction_rejects_empty_text_document(tmp_path: Path):
     root = tmp_path / "sources"
     root.mkdir()
     empty_file = root / "empty.txt"
-    empty_file.write_text("   \\n\\t", encoding="utf-8")
+    empty_file.write_text("   \n\t", encoding="utf-8")
     with pytest.raises(DocumentExtractionError, match="no extractable text"):
         extract_document(empty_file, root)
 
