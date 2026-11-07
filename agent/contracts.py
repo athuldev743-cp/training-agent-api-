@@ -7,7 +7,7 @@ from datetime import date
 from enum import Enum
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from state.profile import UserProfile
 
@@ -35,6 +35,14 @@ class EvidenceReference(BaseModel):
     chunk_number: int | None = Field(default=None, ge=0)
     quote: str | None = Field(default=None, max_length=1200)
 
+    @field_validator("source")
+    @classmethod
+    def _strip_source(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("source must not be blank")
+        return value
+
 
 class AgentRequest(BaseModel):
     """Input passed from the orchestrator to one domain agent."""
@@ -46,6 +54,14 @@ class AgentRequest(BaseModel):
     message: str = Field(min_length=1, max_length=1000)
     profile: UserProfile | None = None
     today: date | None = None
+
+    @field_validator("user_id", "message")
+    @classmethod
+    def _strip_required_text(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("value must not be blank")
+        return value
 
 
 class AgentResult(BaseModel):
