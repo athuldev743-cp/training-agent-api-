@@ -50,7 +50,7 @@ def _read_batch(handle, batch_size: int) -> list[NutritionChunk]:
         try:
             batch.append(NutritionChunk.model_validate_json(line))
         except Exception as exc:
-            raise ValueError(f"invalid nutrition JSONL record at line {handle.line_num}") from exc
+            raise ValueError("invalid nutrition JSONL record") from exc
     return batch
 
 
@@ -74,9 +74,13 @@ def persist_jsonl(
 
     with path.open("r", encoding="utf-8") as handle:
         # Validate that the file contains at least one record before opening a DB connection.
-        first_line = handle.readline()
-        if not first_line:
+        first_record = next((line for line in handle if line.strip()), None)
+        if first_record is None:
             raise ValueError("nutrition JSONL file is empty")
+        try:
+            NutritionChunk.model_validate_json(first_record)
+        except Exception as exc:
+            raise ValueError("invalid nutrition JSONL record") from exc
         handle.seek(0)
 
         with get_connection() as connection:
