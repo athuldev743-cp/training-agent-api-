@@ -20,7 +20,8 @@ _NUTRITION = re.compile(
 )
 _FITNESS = re.compile(
     r"\b(workout|workouts|exercise|exercises|training|train|gym|muscle|"
-    r"sets|reps|routine|programme|program|progression|strength|cardio)\b",
+    r"sets|reps|routine|programme|program|progression|strength|cardio)\b|"
+    r"\bprogressive\s+overload\b|\bweightlifting\b|\bresistance\s+training\b",
     re.IGNORECASE,
 )
 
