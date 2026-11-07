@@ -46,6 +46,10 @@ jobs:
       - name: Run tests
         run: python -m pytest -q
 
+      - name: Generate long-document and multi-page PDF fixtures
+        if: matrix.python-version == '3.13'
+        run: python scripts/create_nutrition_stress_fixtures.py
+
       - name: Generate Module 2 nutrition artifacts
         if: matrix.python-version == '3.13'
         run: |
