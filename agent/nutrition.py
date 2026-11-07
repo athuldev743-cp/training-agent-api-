@@ -17,6 +17,7 @@ from agent.contracts import (
     EvidenceReference,
 )
 from agent.interfaces import DomainAgent
+from agent.safety import assess_nutrition_request
 from rag.nutrition_retrieval import search_nutrition
 
 _CITATION = re.compile(r"\[(S\d+)\]")
@@ -69,6 +70,13 @@ class NutritionAgent:
         self.max_evidence = max_evidence
 
     def run(self, request: AgentRequest) -> AgentResult:
+        safety = assess_nutrition_request(request.message)
+        if not safety.allowed:
+            return self._result(
+                request, AgentStatus.REFUSED,
+                safety.message or "I can't safely answer that request.",
+            )
+
         if not request.message.strip():
             return self._result(request, AgentStatus.NEEDS_CLARIFICATION,
                                 "Please ask a nutrition question.")
