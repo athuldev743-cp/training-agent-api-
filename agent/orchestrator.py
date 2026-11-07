@@ -149,6 +149,8 @@ class MultiAgentOrchestrator:
                 metadata={
                     "fitness": state["fitness_result"].metadata if state.get("fitness_result") else {},
                     "nutrition": state["nutrition_result"].metadata if state.get("nutrition_result") else {},
+                    "fitness_status": state["fitness_result"].status.value if state.get("fitness_result") else None,
+                    "nutrition_status": state["nutrition_result"].status.value if state.get("nutrition_result") else None,
                 },
             )
         return {"results": results, "final": final}
