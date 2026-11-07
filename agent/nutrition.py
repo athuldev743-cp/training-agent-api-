@@ -130,10 +130,19 @@ class NutritionAgent:
             )
 
         context = "\n\n".join(context_parts)[:MAX_CONTEXT_CHARS]
+        profile_context = ""
+        if request.profile is not None:
+            # Only use explicitly stored, non-clinical coaching context. Never infer
+            # allergies, diagnoses, medications, or dietary restrictions.
+            profile_context = (
+                "\\n\\nVALIDATED PROFILE CONTEXT (use only when directly relevant):\\n"
+                f"goal: {request.profile.goal}\\n"
+                f"experience: {request.profile.experience}"
+            )
         try:
             completion = self.llm.create_chat_completion(
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT + "\n\nRETRIEVED EVIDENCE:\n" + context},
+                    {"role": "system", "content": SYSTEM_PROMPT + profile_context + "\n\nRETRIEVED EVIDENCE:\n" + context},
                     {"role": "user", "content": request.message.strip()},
                 ],
                 max_tokens=350,
