@@ -52,3 +52,19 @@ Use `rerank=True` after confirming the base hybrid query works. First-time model
 CI tests validate contracts, batching, vector dimensions, finite values, SQL isolation, upsert behavior, and rollback behavior using mocked model/database boundaries. CI does not connect to Neon and does not claim retrieval relevance.
 
 A real benchmark must use a populated nutrition corpus and a reviewed set of nutrition questions with expected source/chunk IDs. Measure Recall@K, MRR@K, and nDCG@K for lexical-only, semantic-only, hybrid RRF, and hybrid RRF plus reranking. Also record latency and source attribution. Do not treat a small fixture corpus as evidence of production nutrition accuracy.
+
+## Run a labeled retrieval benchmark
+
+Prepare a UTF-8 JSONL file with one object per query. Each object must contain the query and at least one reviewed relevant chunk ID:
+
+```json
+{"query":"protein intake for resistance training","relevant_chunk_ids":["<64-character-chunk-id>"]}
+```
+
+Run both the hybrid and hybrid-plus-reranker evaluations:
+
+```powershell
+python scripts/benchmark_nutrition_retrieval.py --dataset evaluation/nutrition_retrieval.jsonl --output artifacts/module-3/retrieval_benchmark.json --k 5
+```
+
+The report includes Recall@K, MRR@K, nDCG@K, and p50/p95 query latency for each mode. Relevance labels must be reviewed by a subject-matter reviewer; the script measures ranking against those labels and does not establish medical correctness.
