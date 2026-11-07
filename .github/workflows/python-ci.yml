@@ -44,7 +44,9 @@ jobs:
         run: python -c "from api.app import app; assert app is not None; print(app.title)"
 
       - name: Run tests
-        run: python -m pytest -q
+        run: |
+          mkdir -p artifacts/module-4
+          python -m pytest -q --junitxml=artifacts/module-4/pytest-junit.xml
 
       - name: Generate long-document and multi-page PDF fixtures
         if: matrix.python-version == '3.13'
@@ -76,5 +78,14 @@ jobs:
         with:
           name: module-3-nutrition-contract-report
           path: artifacts/module-3/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Module 4 test report
+        if: matrix.python-version == '3.13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-4-nutrition-agent-tests
+          path: artifacts/module-4/
           if-no-files-found: error
           retention-days: 14
