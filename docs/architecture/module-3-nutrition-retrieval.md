@@ -1,50 +1,70 @@
-# Module 3 — Nutrition hybrid retrieval
+# Module 3 — Nutrition hybrid retrieval and persistence
 
-## Scope
+## Retrieval design
 
-This module adds a nutrition-specific retriever using the same retrieval strategy already used by the fitness knowledge base:
+The nutrition retriever uses four stages:
 
-1. Dense semantic retrieval with `BAAI/bge-small-en-v1.5` (384 dimensions).
-2. PostgreSQL full-text lexical retrieval.
-3. Reciprocal Rank Fusion (RRF), with `k=60`.
-4. Optional cross-encoder reranking with `Xenova/ms-marco-MiniLM-L-6-v2`.
+1. **Dense retrieval:** `BAAI/bge-small-en-v1.5`, 384-dimensional vectors stored in pgvector.
+2. **Lexical retrieval:** PostgreSQL full-text search over the generated `content_tsv` column.
+3. **Fusion:** Reciprocal Rank Fusion (RRF), with `k=60`.
+4. **Reranking:** optional FastEmbed cross-encoder `Xenova/ms-marco-MiniLM-L-6-v2`.
 
-The nutrition corpus is isolated in `nutrition_knowledge`; queries in this module never read `fitness_knowledge`.
+All SQL in this module targets only `nutrition_knowledge`; it does not read or write `fitness_knowledge`.
 
-## Database setup
+## Neon migrations
 
-Review and execute `sql/003_nutrition_knowledge.sql` against the intended Neon database. It creates the pgvector-backed table and HNSW, GIN, and source indexes. The migration is idempotent for the objects it creates. Confirm that the Neon project supports the `vector` extension before applying it.
+- Apply `sql/003_nutrition_knowledge.sql` once to create the isolated nutrition corpus and indexes.
+- Apply `sql/004_nutrition_embedding_metadata.sql` once to add `embedding_model`, which records the model used for each stored vector.
 
-This change does not automatically execute SQL against production, and it does not migrate or copy any fitness rows.
+Both migrations are additive and safe to re-run. Review them against the intended Neon project before execution.
 
-## Runtime dependencies
+## Build and persist nutrition chunks
 
-Install the optional retrieval extra:
+First generate the Module 2 JSONL artifact:
+
+```powershell
+python -m nutrition_ingestion.cli --input tests/fixtures/nutrition --output build/nutrition_chunks.jsonl
+```
+
+Then install the retrieval dependencies and configure `NEON_DATABASE_URL` in the project environment:
 
 ```powershell
 python -m pip install -e ".[ingestion,retrieval]"
+python -m nutrition_ingestion.persist_cli --input build/nutrition_chunks.jsonl --batch-size 32
 ```
 
-The embedding and reranker models are downloaded on first use by FastEmbed. Plan for model download/cache and memory requirements in the deployment environment.
+The persistence pipeline validates every JSONL row with the Module 2 Pydantic contract, generates 384-dimensional embeddings in batches, validates finite vector values, and writes through parameterized SQL. One database transaction covers the full JSONL file. Re-running the same file does not duplicate chunks; rows with missing vectors or a different recorded embedding model are re-embedded.
 
-## API
+The command writes only to `nutrition_knowledge`. It does not modify the fitness corpus.
 
-```python
-from rag.nutrition_retrieval import search_nutrition
+## Retrieval smoke test
 
-hits = search_nutrition(
-    "protein intake for resistance training",
-    limit=5,
-    candidate_limit=30,
-    rerank=True,
-)
+After the table is populated:
+
+```powershell
+python -c "from rag.nutrition_retrieval import search_nutrition; print(search_nutrition('protein intake for resistance training', limit=5, rerank=False))"
 ```
 
-Each hit includes chunk ID, content, source ID, source title, page, chunk number, and RRF score. Reranked results also include a reranker score.
+Use `rerank=True` after confirming the base hybrid query works. First-time model use may download model weights.
 
-## Current limitations
+## Evaluation boundaries
 
-- This module provides the retrieval function and schema; it does not add an HTTP endpoint or connect it to the nutrition agent.
-- It does not populate the table. Nutrition chunk persistence/embedding ingestion must be implemented and validated before meaningful live retrieval.
-- CI uses mocked database/model boundaries. A real Neon integration test and retrieval-quality benchmark require a populated test corpus and configured database credentials.
-- Scanned PDF OCR and scientific correctness remain outside retrieval mechanics.
+CI tests validate contracts, batching, vector dimensions, finite values, SQL isolation, upsert behavior, and rollback behavior using mocked model/database boundaries. CI does not connect to Neon and does not claim retrieval relevance.
+
+A real benchmark must use a populated nutrition corpus and a reviewed set of nutrition questions with expected source/chunk IDs. Measure Recall@K, MRR@K, and nDCG@K for lexical-only, semantic-only, hybrid RRF, and hybrid RRF plus reranking. Also record latency and source attribution. Do not treat a small fixture corpus as evidence of production nutrition accuracy.
+
+## Run a labeled retrieval benchmark
+
+Prepare a UTF-8 JSONL file with one object per query. Each object must contain the query and at least one reviewed relevant chunk ID:
+
+```json
+{"query":"protein intake for resistance training","relevant_chunk_ids":["<64-character-chunk-id>"]}
+```
+
+Run both the hybrid and hybrid-plus-reranker evaluations:
+
+```powershell
+python scripts/benchmark_nutrition_retrieval.py --dataset evaluation/nutrition_retrieval.jsonl --output artifacts/module-3/retrieval_benchmark.json --k 5
+```
+
+The report includes Recall@K, MRR@K, nDCG@K, and p50/p95 query latency for each mode. Relevance labels must be reviewed by a subject-matter reviewer; the script measures ranking against those labels and does not establish medical correctness.
