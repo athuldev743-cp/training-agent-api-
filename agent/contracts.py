@@ -74,6 +74,7 @@ class AgentResult(BaseModel):
     status: AgentStatus
     message: str = Field(min_length=1, max_length=4000)
     evidence: list[EvidenceReference] = Field(default_factory=list, max_length=20)
+    metadata: dict = Field(default_factory=dict)
 
     @field_validator("message")
     @classmethod
