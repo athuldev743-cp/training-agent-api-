@@ -89,3 +89,12 @@ jobs:
           path: artifacts/module-4/
           if-no-files-found: error
           retention-days: 14
+
+      - name: Upload Module 5 test report
+        if: matrix.python-version == '3.13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-5-orchestration-tests
+          path: artifacts/module-5/
+          if-no-files-found: error
+          retention-days: 14
