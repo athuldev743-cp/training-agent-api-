@@ -45,8 +45,9 @@ jobs:
 
       - name: Run tests
         run: |
-          mkdir -p artifacts/module-4
+          mkdir -p artifacts/module-4 artifacts/module-5
           python -m pytest -q --junitxml=artifacts/module-4/pytest-junit.xml
+          cp artifacts/module-4/pytest-junit.xml artifacts/module-5/pytest-junit.xml
 
       - name: Generate long-document and multi-page PDF fixtures
         if: matrix.python-version == '3.13'
@@ -87,5 +88,14 @@ jobs:
         with:
           name: module-4-nutrition-agent-tests
           path: artifacts/module-4/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Module 5 test report
+        if: matrix.python-version == '3.13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-5-orchestration-tests
+          path: artifacts/module-5/
           if-no-files-found: error
           retention-days: 14
