@@ -35,8 +35,8 @@ def ranking_metrics(ranked_ids: list[str], relevant_ids: set[str], k: int) -> di
 
 
 def run_benchmark(dataset_path: Path, output_path: Path, k: int = 5) -> dict:
-    if k < 1:
-        raise ValueError("k must be >= 1")
+    if not 1 <= k <= 20:
+        raise ValueError("k must be between 1 and 20")
     cases = [json.loads(line) for line in dataset_path.read_text(encoding="utf-8").splitlines() if line.strip()]
     if not cases:
         raise ValueError("benchmark dataset is empty")
