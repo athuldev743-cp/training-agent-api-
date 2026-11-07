@@ -111,15 +111,58 @@ def sync_up(body: SyncIn, user: str = Depends(current_user)):
 
 
 def run_chat(user, text, today=None):
+    """Run the authenticated request through the LangGraph domain orchestrator."""
+    from agent.contracts import AgentName, AgentRequest, AgentStatus
     from agent.dispatcher import handle_message
+    from agent.fitness_adapter import FitnessAgentAdapter
+    from agent.nutrition import NutritionAgent
+    from agent.orchestrator import MultiAgentOrchestrator
+
     s = stores(user)
     try:
-        r = handle_message(model(), text, exercises(), s["profile"].get(), s["programs"], today or date.today(), s["history"])
-        out = {"status": r.get("status"), "tool": r.get("tool"), "reply": r.get("reply"), "confirm_token": None}
-        pending = (r.get("data") or {}).get("pending") if r.get("status") == "confirm" else None
+        profile = s["profile"].get()
+
+        def fitness_handler(agent_request):
+            return handle_message(
+                model(), agent_request.message, exercises(), profile,
+                s["programs"], agent_request.today or date.today(), s["history"],
+            )
+
+        graph = MultiAgentOrchestrator(
+            FitnessAgentAdapter(fitness_handler),
+            NutritionAgent(model()),
+        )
+        request = AgentRequest(
+            user_id=user,
+            message=text,
+            profile=profile,
+            today=today or date.today(),
+        )
+        result = graph.invoke(request)
+        fitness_meta = result.metadata.get("fitness", result.metadata)
+        legacy_status = fitness_meta.get("legacy_status")
+        if legacy_status:
+            status = legacy_status
+            tool = fitness_meta.get("tool")
+            legacy_data = fitness_meta.get("data") or {}
+        else:
+            status = {
+                AgentStatus.OK: "ok",
+                AgentStatus.NEEDS_CLARIFICATION: "needs_info",
+                AgentStatus.REFUSED: "out_of_scope",
+                AgentStatus.UNAVAILABLE: "unavailable",
+                AgentStatus.ERROR: "error",
+            }[result.status]
+            tool = "nutrition_agent" if result.agent is AgentName.NUTRITION else "multi_agent"
+            legacy_data = {}
+
+        out = {"status": status, "tool": tool, "reply": result.message, "confirm_token": None}
+        pending = legacy_data.get("pending") if status == "confirm" else None
         if isinstance(pending, dict) and pending.get("tool") in CONFIRMABLE:
             out["confirm_token"] = issue_confirm(user, pending, _marker(s["programs"]))
             out["confirm_expires_in"] = 300
+        if result.evidence:
+            out["evidence"] = [item.model_dump() for item in result.evidence]
         return out
     finally:
         close(s)

@@ -43,6 +43,11 @@ class FitnessAgentAdapter:
                 agent=self.name,
                 status=status,
                 message=message[:4000],
+                metadata={
+                    "legacy_status": str(output.get("status") or "error"),
+                    "tool": output.get("tool"),
+                    "data": output.get("data") if isinstance(output.get("data"), dict) else {},
+                },
             )
         except Exception:
             return AgentResult(

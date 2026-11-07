@@ -145,5 +145,9 @@ class MultiAgentOrchestrator:
                 status=status,
                 message=message,
                 evidence=evidence,
+                metadata={
+                    "fitness": state["fitness_result"].metadata if state.get("fitness_result") else {},
+                    "nutrition": state["nutrition_result"].metadata if state.get("nutrition_result") else {},
+                },
             )
         return {"results": results, "final": final}
