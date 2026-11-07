@@ -168,3 +168,21 @@ def test_general_condition_education_is_not_blocked():
 
     assert result.status is AgentStatus.OK
     llm.create_chat_completion.assert_called_once()
+
+def test_uses_only_validated_nonclinical_profile_context():
+    from state.profile import UserProfile
+
+    llm = MagicMock()
+    llm.create_chat_completion.return_value = {
+        "choices": [{"message": {"content": "Protein supports muscle repair [S1]."}}]
+    }
+    profile = UserProfile(name="Test", goal="muscle", experience="beginner")
+    result = NutritionAgent(
+        llm, retriever=lambda *a, **k: [chunk()]
+    ).run(AgentRequest(user_id="test-user", message="How does protein help?", profile=profile))
+
+    assert result.status is AgentStatus.OK
+    system = llm.create_chat_completion.call_args.kwargs["messages"][0]["content"]
+    assert "goal: muscle" in system
+    assert "experience: beginner" in system
+    assert "allergies" in system
