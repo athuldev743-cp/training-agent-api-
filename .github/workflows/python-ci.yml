@@ -66,3 +66,15 @@ jobs:
           path: artifacts/module-2/
           if-no-files-found: error
           retention-days: 14
+      - name: Generate Module 3 contract report
+        if: matrix.python-version == '3.13'
+        run: python scripts/report_module3_contract.py
+
+      - name: Upload Module 3 evaluation artifact
+        if: matrix.python-version == '3.13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-3-nutrition-contract-report
+          path: artifacts/module-3/
+          if-no-files-found: error
+          retention-days: 14
