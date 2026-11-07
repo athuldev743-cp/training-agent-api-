@@ -75,7 +75,7 @@ def test_persist_rejects_wrong_embedding_count_and_rolls_back(tmp_path):
     with patch("nutrition_ingestion.store.get_connection", return_value=connection):
         with pytest.raises(RuntimeError, match="unexpected number"):
             persist_jsonl(source, embedding_model=model)
-    connection.__exit__.assert_not_called()
+    assert connection.__exit__.call_args[0][0] is RuntimeError
 
 
 def test_persist_rejects_invalid_jsonl(tmp_path):
