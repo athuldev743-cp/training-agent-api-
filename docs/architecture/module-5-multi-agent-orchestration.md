@@ -26,9 +26,21 @@ This intentionally avoids an LLM deciding whether to execute a domain capability
 - Existing fitness write confirmations and deterministic execution remain in the legacy handler; the orchestrator itself has no database write capability.
 - The fitness handler is injected by the authenticated application layer so user-scoped stores are not shared across requests.
 
-## Integration boundary
+## FastAPI integration
 
-The module provides the graph and adapter, but does not yet replace the existing `/v1/chat` endpoint. API-level dependency wiring, authentication-context propagation, and endpoint regression tests are the next integration step. No production route is switched in this module.
+The authenticated `/v1/chat` handler now constructs the graph per request:
+- The verified token subject is the only source of `AgentRequest.user_id`.
+- The user's profile, history and program stores are request-scoped and closed in a `finally` block.
+- The existing fitness dispatcher is injected through `FitnessAgentAdapter`; its existing confirmation flow is preserved by carrying its pending action metadata through the in-process result.
+- Nutrition requests use `NutritionAgent` with the configured model and Module 3 retrieval pipeline.
+- Mixed requests invoke both agents and aggregate their responses. If the fitness dispatcher requests confirmation, the API still issues the existing user-bound confirmation token; no write is executed by orchestration.
+- `/v1/chat/stream` reuses the same `run_chat` path, so streaming and non-streaming requests share routing and authorization behavior.
+
+No separate agent server or A2A transport is introduced. The graph and both agents run in the FastAPI process.
+
+## Integration tests
+
+`tests/test_api_multi_agent_integration.py` covers authenticated user propagation, fitness dispatcher delegation, nutrition-only routing, mixed routing, and preservation of the fitness confirmation-token flow. These tests use isolated fake stores and do not write to the production database.
 
 ## Tests
 
