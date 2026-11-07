@@ -1,0 +1,7 @@
+Sports nutrition — CI fixture
+
+For resistance-training sessions, a person's overall dietary pattern, training load, recovery, and total energy intake all matter. Protein-containing foods can contribute amino acids needed for muscle protein synthesis and tissue repair.
+
+A practical nutrition plan should consider food access, cultural preferences, allergies, medical conditions, and the person's goals. When these details are unknown, an automated system should not assume them.
+
+During prolonged exercise, fluid and carbohydrate needs may increase. The appropriate strategy depends on session duration, intensity, environmental conditions, and the athlete's tolerance.

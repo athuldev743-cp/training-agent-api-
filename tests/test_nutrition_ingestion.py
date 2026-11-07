@@ -77,3 +77,21 @@ def test_pipeline_rejects_output_inside_input(tmp_path: Path):
     (root / "guide.txt").write_text("Nutrition document.", encoding="utf-8")
     with pytest.raises(ValueError, match="outside"):
         ingest_directory(root, root / "chunks.jsonl")
+
+
+def test_extraction_rejects_empty_text_document(tmp_path: Path):
+    root = tmp_path / "sources"
+    root.mkdir()
+    empty_file = root / "empty.txt"
+    empty_file.write_text("   \n\t", encoding="utf-8")
+    with pytest.raises(DocumentExtractionError, match="no extractable text"):
+        extract_document(empty_file, root)
+
+
+def test_extraction_rejects_corrupt_pdf(tmp_path: Path):
+    root = tmp_path / "sources"
+    root.mkdir()
+    corrupt_file = root / "corrupt.pdf"
+    corrupt_file.write_bytes(b"this is not a valid PDF")
+    with pytest.raises(DocumentExtractionError):
+        extract_document(corrupt_file, root)
