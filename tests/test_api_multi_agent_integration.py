@@ -50,6 +50,7 @@ def test_chat_endpoint_routes_fitness_through_authenticated_legacy_adapter(monke
     assert response.status_code == 200
     assert response.json()["reply"] == "Workout options."
     assert response.json()["tool"] == "search_exercises"
+    assert response.json()["agent"] == "fitness"
     assert seen["message"] == "Suggest a workout"
     assert isinstance(seen["today"], date)
 
@@ -89,6 +90,7 @@ def test_chat_endpoint_routes_nutrition_to_nutrition_agent(monkeypatch):
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
     assert response.json()["tool"] == "nutrition_agent"
+    assert response.json()["agent"] == "nutrition"
     assert "[S1]" in response.json()["reply"]
     assert calls == ["created", "verified-user"]
 
@@ -132,5 +134,62 @@ def test_mixed_chat_invokes_both_agents_and_preserves_fitness_confirmation(monke
     assert fitness_calls == [True]
     assert nutrition_calls == [True]
     assert result["status"] == "confirm"
+    assert result["agent"] == "multi_agent"
     assert result["confirm_token"] == "signed-confirm-token"
     assert "Fitness:" in result["reply"] and "Nutrition:" in result["reply"]
+
+
+
+def test_mixed_chat_does_not_hide_nutrition_unavailability(monkeypatch):
+    install_request_scoped_stores(monkeypatch)
+
+    def handle(*args, **kwargs):
+        return {"status": "ok", "tool": "general_chat", "data": {}, "reply": "Progressive overload explained."}
+
+    class UnavailableNutritionAgent:
+        name = AgentName.NUTRITION
+
+        def __init__(self, llm):
+            pass
+
+        def run(self, request):
+            return AgentResult(
+                request_id=request.request_id,
+                agent=AgentName.NUTRITION,
+                status=AgentStatus.UNAVAILABLE,
+                message="No nutrition evidence is available.",
+            )
+
+    monkeypatch.setattr("agent.dispatcher.handle_message", handle)
+    monkeypatch.setattr("agent.nutrition.NutritionAgent", UnavailableNutritionAgent)
+
+    result = api.run_chat(
+        "verified-user",
+        "Explain progressive overload and how protein supports recovery",
+        date.today(),
+    )
+
+    assert result["status"] == "unavailable"
+    assert result["agent"] == "multi_agent"
+    assert result["confirm_token"] is None
+    assert "Fitness:" in result["reply"] and "Nutrition:" in result["reply"]
+
+
+def test_fitness_concept_response_exposes_domain_agent_without_changing_legacy_tool(monkeypatch):
+    install_request_scoped_stores(monkeypatch)
+
+    def handle(*args, **kwargs):
+        return {"status": "ok", "tool": "general_chat", "data": {}, "reply": "Progressive overload explained."}
+
+    monkeypatch.setattr("agent.dispatcher.handle_message", handle)
+    client = TestClient(api.app)
+    api.app.dependency_overrides[api.current_user] = lambda: "verified-user"
+    try:
+        response = client.post("/v1/chat", json={"message": "What is progressive overload?"})
+    finally:
+        api.app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json()["agent"] == "fitness"
+    assert response.json()["tool"] == "general_chat"
+    assert response.json()["status"] == "ok"
