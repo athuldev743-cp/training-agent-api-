@@ -15,14 +15,12 @@ dependencies = [
     "psycopg[binary]==3.3.6",
     "python-dotenv==1.2.4",
     "langgraph>=0.2,<2.0",
+    "fastembed>=0.7,<1.0",
 ]
 
 [project.optional-dependencies]
 ingestion = [
     "pypdf>=5.0,<7.0",
-]
-retrieval = [
-    "fastembed>=0.7,<1.0",
 ]
 
 [tool.setuptools.packages.find]
