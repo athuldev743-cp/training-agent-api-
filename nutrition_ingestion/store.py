@@ -41,7 +41,7 @@ def _vector_literal(values: Iterable[Any]) -> str:
 
 def _read_batch(handle, batch_size: int) -> list[NutritionChunk]:
     batch = []
-    for _ in range(batch_size):
+    while len(batch) < batch_size:
         line = handle.readline()
         if not line:
             break
@@ -69,7 +69,6 @@ def persist_jsonl(
 
     model = embedding_model or TextEmbedding(model_name=EMBEDDING_MODEL)
     total = 0
-    processed = 0
     inserted_or_updated = 0
 
     with path.open("r", encoding="utf-8") as handle:
@@ -102,7 +101,6 @@ def persist_jsonl(
                     cursor.executemany(UPSERT_NUTRITION_SQL, rows)
                     affected = max(cursor.rowcount, 0)
                     inserted_or_updated += affected
-                    processed += len(batch)
                     total += len(batch)
 
     return {
