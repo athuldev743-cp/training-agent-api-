@@ -74,3 +74,11 @@ class AgentResult(BaseModel):
     status: AgentStatus
     message: str = Field(min_length=1, max_length=4000)
     evidence: list[EvidenceReference] = Field(default_factory=list, max_length=20)
+
+    @field_validator("message")
+    @classmethod
+    def _strip_result_message(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("message must not be blank")
+        return value
