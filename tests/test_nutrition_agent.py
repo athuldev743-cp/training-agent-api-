@@ -126,3 +126,17 @@ def test_retrieval_call_is_bounded_and_reranked():
 def test_agent_rejects_invalid_evidence_limit():
     with pytest.raises(ValueError):
         NutritionAgent(MagicMock(), max_evidence=6)
+
+
+def test_citation_labels_skip_empty_chunks_without_gaps():
+    llm = MagicMock()
+    llm.create_chat_completion.return_value = {
+        "choices": [{"message": {"content": "Protein supports recovery [S1]."}}]
+    }
+    result = NutritionAgent(
+        llm,
+        retriever=lambda *a, **k: [chunk(text=" "), chunk(source="second.pdf")],
+    ).run(request())
+
+    assert result.status is AgentStatus.OK
+    assert result.evidence[0].source == "second.pdf"
