@@ -140,3 +140,31 @@ def test_citation_labels_skip_empty_chunks_without_gaps():
 
     assert result.status is AgentStatus.OK
     assert result.evidence[0].source == "second.pdf"
+
+def test_medical_nutrition_request_is_blocked_before_retrieval_or_llm():
+    llm = MagicMock()
+    retrieval_calls = []
+    def retriever(*args, **kwargs):
+        retrieval_calls.append(True)
+        return [chunk()]
+
+    result = NutritionAgent(llm, retriever=retriever).run(
+        request("Create a meal plan to manage diabetes")
+    )
+
+    assert result.status is AgentStatus.REFUSED
+    assert retrieval_calls == []
+    llm.create_chat_completion.assert_not_called()
+
+
+def test_general_condition_education_is_not_blocked():
+    llm = MagicMock()
+    llm.create_chat_completion.return_value = {
+        "choices": [{"message": {"content": "Diabetes is a metabolic condition [S1]."}}]
+    }
+    result = NutritionAgent(
+        llm, retriever=lambda *a, **k: [chunk()]
+    ).run(request("What is diabetes?"))
+
+    assert result.status is AgentStatus.OK
+    llm.create_chat_completion.assert_called_once()
