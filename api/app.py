@@ -141,22 +141,44 @@ def run_chat(user, text, today=None):
         result = graph.invoke(request)
         fitness_meta = result.metadata.get("fitness", result.metadata)
         legacy_status = fitness_meta.get("legacy_status")
-        if legacy_status:
-            status = legacy_status
-            tool = fitness_meta.get("tool")
-            legacy_data = fitness_meta.get("data") or {}
-        else:
-            status = {
-                AgentStatus.OK: "ok",
-                AgentStatus.NEEDS_CLARIFICATION: "needs_info",
-                AgentStatus.REFUSED: "out_of_scope",
-                AgentStatus.UNAVAILABLE: "unavailable",
-                AgentStatus.ERROR: "error",
-            }[result.status]
-            tool = "nutrition_agent" if result.agent is AgentName.NUTRITION else "multi_agent"
-            legacy_data = {}
+        is_mixed = "fitness" in result.metadata and "nutrition" in result.metadata
+        status_map = {
+            AgentStatus.OK: "ok",
+            AgentStatus.NEEDS_CLARIFICATION: "needs_info",
+            AgentStatus.REFUSED: "out_of_scope",
+            AgentStatus.UNAVAILABLE: "unavailable",
+            AgentStatus.ERROR: "error",
+        }
 
-        out = {"status": status, "tool": tool, "reply": result.message, "confirm_token": None}
+        # Preserve legacy action/status semantics for fitness-only requests. For mixed
+        # requests, the graph's aggregate status is authoritative so one unavailable
+        # agent cannot be hidden by the fitness adapter's legacy status.
+        if not is_mixed and legacy_status:
+            status = legacy_status
+        else:
+            status = status_map[result.status]
+            if (
+                is_mixed
+                and result.status is AgentStatus.NEEDS_CLARIFICATION
+                and legacy_status == "confirm"
+                and result.metadata.get("nutrition_status") == AgentStatus.OK.value
+            ):
+                # Keep the existing workout confirmation flow when nutrition also
+                # completed successfully.
+                status = "confirm"
+
+        tool = fitness_meta.get("tool") if legacy_status else (
+            "nutrition_agent" if result.agent is AgentName.NUTRITION else "multi_agent"
+        )
+        legacy_data = fitness_meta.get("data") or {} if legacy_status else {}
+
+        out = {
+            "status": status,
+            "tool": tool,
+            "agent": "multi_agent" if is_mixed else result.agent.value,
+            "reply": result.message,
+            "confirm_token": None,
+        }
         pending = legacy_data.get("pending") if status == "confirm" else None
         if isinstance(pending, dict) and pending.get("tool") in CONFIRMABLE:
             out["confirm_token"] = issue_confirm(user, pending, _marker(s["programs"]))
