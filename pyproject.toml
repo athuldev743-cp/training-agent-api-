@@ -16,9 +16,14 @@ dependencies = [
     "python-dotenv==1.2.4",
 ]
 
+[project.optional-dependencies]
+ingestion = [
+    "pypdf>=5.0,<7.0",
+]
+
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["api*", "rag*", "data*", "agent*", "state*", "engine*"]
+include = ["api*", "rag*", "data*", "agent*", "state*", "engine*", "nutrition_ingestion*"]
 
 [tool.fastapi]
 entrypoint = "api.app:app"
