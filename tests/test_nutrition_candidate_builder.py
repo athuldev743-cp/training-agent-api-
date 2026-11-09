@@ -94,3 +94,25 @@ def test_oversized_rda_table_repeats_section_and_column_headers():
     assert all(part.startswith(section + "\n" + header) for part in parts)
     for row in rows:
         assert sum(row in part for part in parts) == 1
+
+
+
+def test_two_column_layout_inserts_full_width_heading_after_all_content_above_it():
+    from nutrition.inspection.build_nutrition_chunk_candidates import block_order
+
+    blocks = [
+        {"block_index": 0, "bbox": [10, 10, 190, 30], "text": "left top"},
+        {"block_index": 1, "bbox": [10, 60, 190, 80], "text": "left middle"},
+        {"block_index": 2, "bbox": [10, 130, 190, 150], "text": "left bottom"},
+        {"block_index": 3, "bbox": [300, 15, 480, 35], "text": "right top"},
+        {"block_index": 4, "bbox": [300, 55, 480, 75], "text": "right middle"},
+        {"block_index": 5, "bbox": [300, 140, 480, 160], "text": "right bottom"},
+        {"block_index": 6, "bbox": [10, 100, 480, 120], "text": "FULL WIDTH HEADING"},
+    ]
+    ordered = block_order(blocks, page_width=500)
+    labels = [block["text"] for block in ordered]
+    heading_index = labels.index("FULL WIDTH HEADING")
+    assert set(labels[:heading_index]) == {
+        "left top", "left middle", "right top", "right middle"
+    }
+    assert set(labels[heading_index + 1:]) == {"left bottom", "right bottom"}
