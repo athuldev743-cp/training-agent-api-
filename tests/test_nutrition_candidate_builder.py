@@ -1,7 +1,10 @@
+import json
+
 from nutrition.inspection.build_nutrition_chunk_candidates import (
     ICMR_EXAMPLE_CHART_PAGES,
     SOURCE_CONFIG,
     _split_oversized_unit,
+    build_candidates,
     classify_chunk,
     make_chunks,
     normalize_text,
@@ -116,3 +119,62 @@ def test_two_column_layout_inserts_full_width_heading_after_all_content_above_it
         "left top", "left middle", "right top", "right middle"
     }
     assert set(labels[heading_index + 1:]) == {"left bottom", "right bottom"}
+
+
+
+def test_candidate_pipeline_applies_source_page_policy_and_review_flags(tmp_path):
+    source_file = tmp_path / "pdf_pages_raw.jsonl"
+    rows = [
+        {
+            "source_id": "issn_protein_exercise_2017",
+            "source": "issn.pdf",
+            "title": "ISSN Position Stand",
+            "page": page,
+            "text_sorted": "Protein intake evidence for healthy exercising adults.",
+        }
+        for page in (19, 20, 25)
+    ]
+    rows.extend([
+        {
+            "source_id": "icmr_dietary_guidelines_2024",
+            "source": "icmr.pdf",
+            "title": "ICMR-NIN Dietary Guidelines 2024",
+            "page": 130,
+            "text_sorted": "Breakfast, lunch and dinner example chart.",
+        },
+        {
+            "source_id": "icmr_dietary_guidelines_2024",
+            "source": "icmr.pdf",
+            "title": "ICMR-NIN Dietary Guidelines 2024",
+            "page": 148,
+            "text_sorted": "Back cover.",
+        },
+        {
+            "source_id": "icmr_rda_ear_2020",
+            "source": "rda.pdf",
+            "title": "ICMR-NIN RDA/EAR 2020",
+            "page": 4,
+            "text_sorted": "Recommended Dietary Allowance values by age and sex.",
+        },
+    ])
+    source_file.write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+
+    audit = build_candidates(source_file, tmp_path / "processed", run_id="fixture")
+    candidate_file = tmp_path / "processed" / "new_sources_run_fixture" / "nutrition_chunk_candidates.jsonl"
+    candidates = [json.loads(line) for line in candidate_file.read_text(encoding="utf-8").splitlines()]
+
+    assert audit["total_chunks"] == len(candidates)
+    assert {(item["source_id"], item["page"]) for item in candidates} == {
+        ("issn_protein_exercise_2017", 19),
+        ("icmr_dietary_guidelines_2024", 130),
+        ("icmr_rda_ear_2020", 4),
+    }
+    chart = next(item for item in candidates if item["page"] == 130)
+    assert chart["knowledge_type"] == "illustrative_food_chart_reference_only"
+    assert "do_not_present_as_fixed_meal_plan" in chart["review_flags"]
+    rda = next(item for item in candidates if item["source_id"] == "icmr_rda_ear_2020")
+    assert rda["knowledge_type"] == "nutrient_requirement"
+    assert "rda_ear_table_atomic_review" in rda["review_flags"]
