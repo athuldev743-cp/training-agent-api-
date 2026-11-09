@@ -6,6 +6,7 @@ nutrition treatment.
 """
 from __future__ import annotations
 
+import json
 import re
 from typing import Any, Callable
 
@@ -176,29 +177,20 @@ class NutritionAgent:
     def _format_profile(profile: UserProfile | None) -> str:
         if profile is None:
             return "No saved profile is available. Do not assume personal details."
-        fields = (
-            ("Age", profile.age),
-            ("Height (cm)", profile.height_cm),
-            ("Weight (kg)", profile.weight_kg),
-            ("Goal", profile.goal),
-            ("Activity level", profile.activity_level),
-            ("Dietary pattern", profile.dietary_pattern),
-            ("Preferred foods", profile.preferred_foods),
-            ("Foods to exclude", profile.excluded_foods),
-            ("Allergies", profile.allergies),
-            ("Intolerances", profile.intolerances),
-            ("Meals per day", profile.meals_per_day),
-        )
-        lines = []
-        for label, value in fields:
-            if value is None or value == [] or value == "unspecified":
-                rendered = "not provided"
-            elif isinstance(value, list):
-                rendered = ", ".join(value)
-            else:
-                rendered = str(value)
-            lines.append(f"{label}: {rendered}")
-        return "\n".join(lines)
+        profile_data = {
+            "age": profile.age,
+            "height_cm": profile.height_cm,
+            "weight_kg": profile.weight_kg,
+            "goal": profile.goal,
+            "activity_level": profile.activity_level,
+            "dietary_pattern": profile.dietary_pattern,
+            "preferred_foods": profile.preferred_foods,
+            "excluded_foods": profile.excluded_foods,
+            "allergies": profile.allergies,
+            "intolerances": profile.intolerances,
+            "meals_per_day": profile.meals_per_day,
+        }
+        return json.dumps(profile_data, ensure_ascii=False)
 
     def _result(
         self,
