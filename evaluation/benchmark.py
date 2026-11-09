@@ -174,6 +174,10 @@ def run_benchmark(
     report_modes: dict[str, Any] = {}
 
     for mode, config in modes.items():
+        # Load embedding/reranker models and warm the database path before timing.
+        # The warm-up query is excluded from quality metrics and latency percentiles.
+        _run_one(domain, cases[0]["query"], k=k, **config)
+
         metrics_rows = []
         latencies = []
         statuses: dict[str, int] = {}
