@@ -26,6 +26,7 @@ def test_profile_store_round_trips_nutrition_preferences():
             allergies=["peanut"],
             intolerances=["lactose"],
             meals_per_day=4,
+            daily_food_budget_inr=250,
         )
         store.save(profile)
         loaded = store.get()
@@ -80,6 +81,7 @@ def test_v9_profile_migrates_without_losing_existing_workout_data(tmp_path):
         assert loaded.preferred_foods == []
         assert loaded.allergies == []
         assert loaded.meals_per_day == 3
+        assert loaded.daily_food_budget_inr is None
         assert store.conn.execute("PRAGMA user_version").fetchone()[0] == 10
     finally:
         store.close()
