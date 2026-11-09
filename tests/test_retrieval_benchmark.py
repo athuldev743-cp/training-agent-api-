@@ -43,7 +43,7 @@ def test_nutrition_benchmark_reports_all_three_retrieval_modes(monkeypatch, tmp_
         "nutrition", dataset, tmp_path / "report.json", k=1
     )
 
-    assert calls == [False, True]
+    assert calls == [False, False, True, True]
     assert set(report["metrics"]) == {"vector_only", "hybrid_rrf", "hybrid_reranked"}
     assert report["metrics"]["hybrid_reranked"]["reranking_status_counts"] == {
         "fallback_rrf": 1
@@ -75,7 +75,7 @@ def test_fitness_benchmark_retries_only_cross_encoder_failure(monkeypatch, tmp_p
         "fitness", dataset, tmp_path / "fitness-report.json", k=1
     )
 
-    assert calls == [False, True, False]
+    assert calls == [False, False, True, False, True, False]
     assert report["metrics"]["hybrid_reranked"]["reranking_status_counts"] == {
         "fallback_rrf": 1
     }
