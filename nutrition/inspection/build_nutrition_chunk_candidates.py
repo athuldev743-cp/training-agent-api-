@@ -144,6 +144,7 @@ def block_order(blocks: list[dict[str, Any]], page_width: float) -> list[dict[st
         result.extend(above)
         result.append(span)
     result.extend(columns)
+    return result
 
 
 
