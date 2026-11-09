@@ -25,7 +25,7 @@ ingestion = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["api*", "rag*", "data*", "agent*", "state*", "engine*", "nutrition_ingestion*", "services*"]
+include = ["api*", "rag*", "data*", "agent*", "state*", "engine*", "nutrition_ingestion*", "services*", "evaluation*"]
 
 [tool.fastapi]
 entrypoint = "api.app:app"

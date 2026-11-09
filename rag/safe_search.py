@@ -1,6 +1,10 @@
-"""Controlled-failure wrapper around the optional cloud hybrid retrieval (Step 7.5).
-Never raises. Reports only exception TYPE names (messages can contain connection strings)."""
+"""Controlled-failure wrapper around optional cloud hybrid retrieval.
+
+A retry without reranking is permitted only when the fitness cross-encoder itself
+fails. Database/network failures are not mislabeled as reranker failures.
+"""
 import concurrent.futures as cf
+import math
 import os
 from typing import Callable, Literal
 
@@ -8,6 +12,8 @@ from pydantic import BaseModel
 
 Status = Literal["ok", "no_results", "unavailable", "invalid_query"]
 DEFAULT_TIMEOUT_S = 8.0
+MAX_TIMEOUT_S = 60.0
+MAX_LIMIT = 10
 MAX_CHARS = 600
 
 
@@ -49,45 +55,78 @@ def _neon_search() -> Callable | None:
 
 
 def _call(search: Callable, query: str, limit: int, rerank: bool, timeout_s: float):
-    ex = cf.ThreadPoolExecutor(max_workers=1)
+    executor = cf.ThreadPoolExecutor(max_workers=1)
     try:
-        return ex.submit(search, query, limit=limit, rerank=rerank).result(timeout=timeout_s)
+        future = executor.submit(search, query, limit=limit, rerank=rerank)
+        return future.result(timeout=timeout_s)
     finally:
-        ex.shutdown(wait=False, cancel_futures=True)  # a timed-out call may finish in the background
+        executor.shutdown(wait=False, cancel_futures=True)
 
 
-def retrieve_evidence(query: str, limit: int = 3, timeout_s: float = DEFAULT_TIMEOUT_S,
-                      search: Callable | None = None) -> RetrievalOutcome:
+def retrieve_evidence(
+    query: str,
+    limit: int = 3,
+    timeout_s: float = DEFAULT_TIMEOUT_S,
+    search: Callable | None = None,
+) -> RetrievalOutcome:
     if not isinstance(query, str) or not query.strip():
         return RetrievalOutcome(status="invalid_query", reason="empty query")
+    if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= MAX_LIMIT:
+        return RetrievalOutcome(status="invalid_query", reason="invalid limit")
+    if (
+        isinstance(timeout_s, bool)
+        or not isinstance(timeout_s, (int, float))
+        or not math.isfinite(float(timeout_s))
+        or not 0 < float(timeout_s) <= MAX_TIMEOUT_S
+    ):
+        return RetrievalOutcome(status="invalid_query", reason="invalid timeout")
+
     if search is None:
         search = _default_search()
         if search is None:
-            return RetrievalOutcome(status="unavailable", reason="cloud knowledge store not available (offline or not configured)")
+            return RetrievalOutcome(
+                status="unavailable",
+                reason="cloud knowledge store not available (offline or not configured)",
+            )
+
     degraded: list[str] = []
     try:
-        rows = _call(search, query.strip(), limit, True, timeout_s)
+        rows = _call(search, query.strip(), limit, True, float(timeout_s))
     except cf.TimeoutError:
         return RetrievalOutcome(status="unavailable", reason="timeout")
     except ValueError:
         return RetrievalOutcome(status="invalid_query", reason="ValueError")
     except Exception as first:
-        try:  # one bounded retry without the reranker
-            rows = _call(search, query.strip(), limit, False, timeout_s)
+        try:
+            from rag.hybrid import RerankerUnavailableError
+        except Exception:
+            RerankerUnavailableError = ()  # type: ignore[assignment,misc]
+        if not isinstance(first, RerankerUnavailableError):
+            return RetrievalOutcome(status="unavailable", reason=type(first).__name__)
+        try:
+            rows = _call(search, query.strip(), limit, False, float(timeout_s))
             degraded.append("reranker_unavailable")
         except cf.TimeoutError:
             return RetrievalOutcome(status="unavailable", reason="timeout")
-        except Exception:
-            return RetrievalOutcome(status="unavailable", reason=type(first).__name__)
+        except Exception as second:
+            return RetrievalOutcome(status="unavailable", reason=type(second).__name__)
+
     seen_ids, seen_text, evidence = set(), set(), []
-    for r in rows or []:
-        text = str(r.get("content", "")).strip()
+    for row in rows or []:
+        text = str(row.get("content", "")).strip()
         key = " ".join(text.lower().split())
-        if not text or r.get("id") in seen_ids or key in seen_text:
+        if not text or row.get("id") in seen_ids or key in seen_text:
             continue
-        seen_ids.add(r.get("id")); seen_text.add(key)
-        evidence.append(Evidence(ref=f"S{len(evidence) + 1}", id=r.get("id"), source=r.get("source"),
-                                 page=r.get("page"), chunk_number=r.get("chunk_number"), text=text[:MAX_CHARS]))
+        seen_ids.add(row.get("id"))
+        seen_text.add(key)
+        evidence.append(Evidence(
+            ref=f"S{len(evidence) + 1}",
+            id=row.get("id"),
+            source=row.get("source"),
+            page=row.get("page"),
+            chunk_number=row.get("chunk_number"),
+            text=text[:MAX_CHARS],
+        ))
     if not evidence:
         return RetrievalOutcome(status="no_results", reason="nothing relevant found", degraded=degraded)
     return RetrievalOutcome(status="ok", evidence=evidence[:limit], degraded=degraded)
@@ -95,7 +134,14 @@ def retrieve_evidence(query: str, limit: int = 3, timeout_s: float = DEFAULT_TIM
 
 def grounded_context(outcome: RetrievalOutcome) -> str:
     if outcome.status == "ok":
-        return "\n".join(f"[{e.ref}] {e.source or 'unknown source'}" + (f" p.{e.page}" if e.page else "") + f": {e.text}"
-                         for e in outcome.evidence)
-    return ("No retrieved evidence is available (" + (outcome.reason or outcome.status) + "). "
-            "Say that no source was found. Do not cite sources or invent evidence.")
+        return "\n".join(
+            f"[{item.ref}] {item.source or 'unknown source'}"
+            + (f" p.{item.page}" if item.page else "")
+            + f": {item.text}"
+            for item in outcome.evidence
+        )
+    return (
+        "No retrieved evidence is available ("
+        + (outcome.reason or outcome.status)
+        + "). Say that no source was found. Do not cite sources or invent evidence."
+    )
