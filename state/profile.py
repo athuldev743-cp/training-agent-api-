@@ -24,6 +24,37 @@ class UserProfile(BaseModel):
     limitations: list[str] = Field(default_factory=list)  # body areas to avoid loading
     screening: Screening = "not_asked"
 
+    # Optional nutrition preferences; unspecified values are never inferred.
+    activity_level: Literal[
+        "unspecified", "sedentary", "lightly_active", "moderately_active",
+        "very_active", "athlete",
+    ] = "unspecified"
+    dietary_pattern: Literal[
+        "unspecified", "omnivore", "vegetarian", "eggetarian",
+        "vegan", "pescatarian",
+    ] = "unspecified"
+    preferred_foods: list[str] = Field(default_factory=list, max_length=30)
+    excluded_foods: list[str] = Field(default_factory=list, max_length=30)
+    allergies: list[str] = Field(default_factory=list, max_length=30)
+    intolerances: list[str] = Field(default_factory=list, max_length=30)
+    meals_per_day: int = Field(default=3, ge=1, le=8)
+
+    @field_validator("preferred_foods", "excluded_foods", "allergies", "intolerances")
+    @classmethod
+    def _clean_food_lists(cls, value):
+        cleaned, seen = [], set()
+        for item in value:
+            if not isinstance(item, str):
+                raise ValueError("food preferences must be text")
+            item = item.strip()
+            if not item or len(item) > 60:
+                raise ValueError("food preference entries must contain 1-60 characters")
+            key = item.casefold()
+            if key not in seen:
+                cleaned.append(item)
+                seen.add(key)
+        return cleaned
+
     @field_validator("equipment")
     @classmethod
     def _check_equipment(cls, value):
