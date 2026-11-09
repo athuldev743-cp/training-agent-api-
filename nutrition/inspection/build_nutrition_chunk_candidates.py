@@ -53,11 +53,23 @@ KNOWN_COMPLEX_PAGES = {
 
 ICMR_EXAMPLE_CHART_PAGES = set(range(130, 147))
 
-HEADING_RE = re.compile(
-    r"^(?:(?:chapter|section)\s+[\w.-]+|\d+(?:\.\d+)*\.?\s+\S.{2,100}|"
-    r"[A-Z][A-Z0-9 ,:&()/\-]{3,90})$",
+SECTION_RE = re.compile(
+    r"^(?:(?:chapter|section)\\s+[\\w.-]+|\\d+(?:\\.\\d+)*\\.?\\s+\\S.{2,100})$",
     re.IGNORECASE,
 )
+
+
+def _is_heading(line: str) -> bool:
+    stripped = line.strip()
+    if SECTION_RE.match(stripped):
+        return True
+    letters = [char for char in stripped if char.isalpha()]
+    return bool(
+        4 <= len(stripped) <= 90
+        and letters
+        and all(char == char.upper() for char in letters)
+        and re.fullmatch(r"[A-Z0-9 ,:&()/\\-]+", stripped)
+    )
 MOJIBAKE_MARKERS = ("â€“", "â€”", "â€™", "â€œ", "â€", "Ã", "Â", "\ufffd")
 BULLET_TRANSLATION = str.maketrans({
     "\x01": "• ", "\x02": "• ", "\uf0b7": "• ", "\u2022": "• ",
@@ -136,57 +148,57 @@ def _is_table_row(line: str) -> bool:
 
 
 def split_into_units(text: str) -> list[str]:
-    """Keep headings with following prose and keep contiguous table rows together."""
+    """Keep headings with following prose and contiguous table rows together."""
     text = normalize_text(text)
     if not text:
         return []
 
-    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
-    if len(paragraphs) > 1:
-        raw_units = paragraphs
-    else:
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
+    paragraphs = [p.strip() for p in re.split(r"\\n\\s*\\n", text) if p.strip()]
+    raw_units: list[str] = []
+    for paragraph in paragraphs:
+        lines = [line.strip() for line in paragraph.splitlines() if line.strip()]
         if len(lines) <= 1:
-            return [text]
-        raw_units = []
-        buffer: list[str] = []
-        table_buffer: list[str] = []
+            raw_units.append(paragraph)
+            continue
+
+        prose: list[str] = []
+        table_rows: list[str] = []
         for line in lines:
             if _is_table_row(line):
-                if buffer:
-                    raw_units.append(" ".join(buffer))
-                    buffer = []
-                table_buffer.append(line)
+                if prose:
+                    raw_units.append(" ".join(prose))
+                    prose = []
+                table_rows.append(line)
                 continue
-            if table_buffer:
-                raw_units.append("\n".join(table_buffer))
-                table_buffer = []
-            if HEADING_RE.match(line):
-                if buffer:
-                    raw_units.append(" ".join(buffer))
-                    buffer = []
+            if table_rows:
+                raw_units.append("\\n".join(table_rows))
+                table_rows = []
+            if _is_heading(line):
+                if prose:
+                    raw_units.append(" ".join(prose))
+                    prose = []
                 raw_units.append(line)
             else:
-                buffer.append(line)
-        if table_buffer:
-            raw_units.append("\n".join(table_buffer))
-        if buffer:
-            raw_units.append(" ".join(buffer))
+                prose.append(line)
+        if table_rows:
+            raw_units.append("\\n".join(table_rows))
+        if prose:
+            raw_units.append(" ".join(prose))
 
-    # A heading is metadata for the next content unit, not a standalone retrieval result.
+    # A heading is context for the next evidence unit, not an orphan chunk.
     units: list[str] = []
     pending_heading = ""
     for unit in raw_units:
-        if HEADING_RE.match(unit) and len(unit) <= 120:
-            pending_heading = f"{pending_heading}\n{unit}".strip()
+        if _is_heading(unit) and len(unit) <= 120:
+            pending_heading = f"{pending_heading}\\n{unit}".strip()
             continue
         if pending_heading:
-            unit = f"{pending_heading}\n{unit}"
+            unit = f"{pending_heading}\\n{unit}"
             pending_heading = ""
         units.append(unit)
     if pending_heading:
         if units:
-            units[-1] = f"{units[-1]}\n{pending_heading}"
+            units[-1] = f"{units[-1]}\\n{pending_heading}"
         else:
             units.append(pending_heading)
     return units
