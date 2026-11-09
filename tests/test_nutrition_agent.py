@@ -5,6 +5,7 @@ import pytest
 from agent.contracts import AgentName, AgentRequest, AgentStatus
 from agent.interfaces import DomainAgent
 from agent.nutrition import NutritionAgent
+from state.profile import UserProfile
 
 
 def request(message="How does protein support muscle recovery?"):
@@ -140,3 +141,43 @@ def test_citation_labels_skip_empty_chunks_without_gaps():
 
     assert result.status is AgentStatus.OK
     assert result.evidence[0].source == "second.pdf"
+
+
+
+def test_saved_profile_is_included_in_nutrition_prompt_and_constraints():
+    llm = MagicMock()
+    llm.create_chat_completion.return_value = {
+        "choices": [{"message": {"content": "Choose protein-rich vegetarian meals [S1]."}}]
+    }
+    profile = UserProfile(
+        name="Test User", age=29, height_cm=172, weight_kg=78,
+        goal="fat_loss", activity_level="moderately_active",
+        dietary_pattern="vegetarian", preferred_foods=["dal", "paneer"],
+        excluded_foods=["mushroom"], allergies=["peanut"],
+        intolerances=["lactose"], meals_per_day=4,
+    )
+    agent = NutritionAgent(llm, retriever=lambda *a, **k: [chunk()])
+    result = agent.run(AgentRequest(
+        user_id="test-user", message="Create a practical meal plan",
+        profile=profile,
+    ))
+
+    assert result.status is AgentStatus.OK
+    system = llm.create_chat_completion.call_args.kwargs["messages"][0]["content"]
+    for value in ("fat_loss", "moderately_active", "vegetarian", "dal, paneer",
+                  "mushroom", "peanut", "lactose", "Meals per day: 4"):
+        assert value in system
+    assert "Do not assume personal details" not in system
+
+
+def test_missing_profile_is_explicit_and_not_inferred():
+    llm = MagicMock()
+    llm.create_chat_completion.return_value = {
+        "choices": [{"message": {"content": "The source discusses balanced meals [S1]."}}]
+    }
+    result = NutritionAgent(llm, retriever=lambda *a, **k: [chunk()]).run(request())
+    system = llm.create_chat_completion.call_args.kwargs["messages"][0]["content"]
+
+    assert result.status is AgentStatus.OK
+    assert "No saved profile is available" in system
+    assert "Do not assume personal details" in system
