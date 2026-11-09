@@ -6,11 +6,13 @@ def test_ranking_metrics_perfect_order():
     assert metrics["recall_at_k"] == pytest.approx(1.0)
     assert metrics["mrr_at_k"] == pytest.approx(1.0)
     assert metrics["ndcg_at_k"] == pytest.approx(1.0)
+    assert metrics["precision_at_k"] == pytest.approx(2 / 3)
 
 def test_ranking_metrics_partial_recall_and_rank():
     metrics = ranking_metrics(["x", "b", "a"], {"a", "b"}, 3)
     assert metrics["recall_at_k"] == pytest.approx(1.0)
     assert metrics["mrr_at_k"] == pytest.approx(0.5)
+    assert metrics["precision_at_k"] == pytest.approx(2 / 3)
     assert 0.0 < metrics["ndcg_at_k"] < 1.0
 
 def test_ranking_metrics_rejects_empty_relevance_set():
