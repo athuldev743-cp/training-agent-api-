@@ -54,7 +54,7 @@ KNOWN_COMPLEX_PAGES = {
 ICMR_EXAMPLE_CHART_PAGES = set(range(130, 147))
 
 SECTION_RE = re.compile(
-    r"^(?:(?:chapter|section)\\s+[\\w.-]+|\\d+(?:\\.\\d+)*\\.?\\s+\\S.{2,100})$",
+    r"^(?:(?:chapter|section)\s+[\w.-]+|\d+(?:\.\d+)*\.?\s+\S.{2,100})$",
     re.IGNORECASE,
 )
 
@@ -68,7 +68,7 @@ def _is_heading(line: str) -> bool:
         4 <= len(stripped) <= 90
         and letters
         and all(char == char.upper() for char in letters)
-        and re.fullmatch(r"[A-Z0-9 ,:&()/\\-]+", stripped)
+        and re.fullmatch(r"[A-Z0-9 ,:&()/\-]+", stripped)
     )
 MOJIBAKE_MARKERS = ("â€“", "â€”", "â€™", "â€œ", "â€", "Ã", "Â", "\ufffd")
 BULLET_TRANSLATION = str.maketrans({
@@ -153,7 +153,7 @@ def split_into_units(text: str) -> list[str]:
     if not text:
         return []
 
-    paragraphs = [p.strip() for p in re.split(r"\\n\\s*\\n", text) if p.strip()]
+    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
     raw_units: list[str] = []
     for paragraph in paragraphs:
         lines = [line.strip() for line in paragraph.splitlines() if line.strip()]
@@ -171,7 +171,7 @@ def split_into_units(text: str) -> list[str]:
                 table_rows.append(line)
                 continue
             if table_rows:
-                raw_units.append("\\n".join(table_rows))
+                raw_units.append("\n".join(table_rows))
                 table_rows = []
             if _is_heading(line):
                 if prose:
@@ -181,7 +181,7 @@ def split_into_units(text: str) -> list[str]:
             else:
                 prose.append(line)
         if table_rows:
-            raw_units.append("\\n".join(table_rows))
+            raw_units.append("\n".join(table_rows))
         if prose:
             raw_units.append(" ".join(prose))
 
@@ -190,15 +190,15 @@ def split_into_units(text: str) -> list[str]:
     pending_heading = ""
     for unit in raw_units:
         if _is_heading(unit) and len(unit) <= 120:
-            pending_heading = f"{pending_heading}\\n{unit}".strip()
+            pending_heading = f"{pending_heading}\n{unit}".strip()
             continue
         if pending_heading:
-            unit = f"{pending_heading}\\n{unit}"
+            unit = f"{pending_heading}\n{unit}"
             pending_heading = ""
         units.append(unit)
     if pending_heading:
         if units:
-            units[-1] = f"{units[-1]}\\n{pending_heading}"
+            units[-1] = f"{units[-1]}\n{pending_heading}"
         else:
             units.append(pending_heading)
     return units
