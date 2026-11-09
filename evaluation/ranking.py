@@ -8,7 +8,7 @@ from __future__ import annotations
 import math
 from collections.abc import Iterable
 
-METRIC_NAMES = ("precision_at_k", "recall_at_k", "mrr_at_k", "ndcg_at_k")
+METRIC_NAMES = ("hit_at_k", "precision_at_k", "recall_at_k", "mrr_at_k", "ndcg_at_k")
 
 
 def _normalise_ids(values: Iterable[object], *, field: str) -> list[str]:
@@ -31,7 +31,7 @@ def ranking_metrics(
     relevant_ids: Iterable[object],
     k: int = 5,
 ) -> dict[str, float]:
-    """Calculate Precision@K, Recall@K, MRR@K and NDCG@K for one query."""
+    """Calculate Hit@K, Precision@K, Recall@K, MRR@K and NDCG@K for one query."""
     if isinstance(k, bool) or not isinstance(k, int) or k < 1 or k > 100:
         raise ValueError("k must be an integer between 1 and 100")
 
@@ -64,6 +64,7 @@ def ranking_metrics(
     idcg = sum(1.0 / math.log2(rank + 1) for rank in range(1, ideal_count + 1))
 
     return {
+        "hit_at_k": 1.0 if hit_count else 0.0,
         "precision_at_k": hit_count / k,
         "recall_at_k": hit_count / len(relevant),
         "mrr_at_k": reciprocal_rank,
