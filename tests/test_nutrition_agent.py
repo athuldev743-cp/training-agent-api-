@@ -164,8 +164,10 @@ def test_saved_profile_is_included_in_nutrition_prompt_and_constraints():
 
     assert result.status is AgentStatus.OK
     system = llm.create_chat_completion.call_args.kwargs["messages"][0]["content"]
-    for value in ("fat_loss", "moderately_active", "vegetarian", "dal, paneer",
-                  "mushroom", "peanut", "lactose", "Meals per day: 4"):
+    for value in ('"goal": "fat_loss"', '"activity_level": "moderately_active"',
+                  '"dietary_pattern": "vegetarian"', '"preferred_foods": ["dal", "paneer"]',
+                  '"excluded_foods": ["mushroom"]', '"allergies": ["peanut"]',
+                  '"intolerances": ["lactose"]', '"meals_per_day": 4'):
         assert value in system
     assert "Do not assume personal details" not in system
 
