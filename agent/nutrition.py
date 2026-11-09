@@ -24,6 +24,11 @@ from rag.nutrition_retrieval import search_nutrition
 
 _CITATION = re.compile(r"\[(S\d+)\]")
 _ANY_SOURCE_TAG = re.compile(r"\[S\d+\]")
+_PERSONALIZED_REQUEST = re.compile(
+    r"\b(meal plan|diet plan|meal prep|create|build|design|recommend|suggest|"
+    r"personaliz\w*|for me|my diet|calorie target|macro target)\b",
+    re.IGNORECASE,
+)
 MAX_EVIDENCE = 5
 MAX_CONTEXT_CHARS = 9000
 
@@ -83,9 +88,22 @@ class NutritionAgent:
             return self._result(request, AgentStatus.NEEDS_CLARIFICATION,
                                 "Please ask a nutrition question.")
 
+        retrieval_query = request.message
+        if request.profile is not None and _PERSONALIZED_REQUEST.search(request.message):
+            profile_terms = [
+                request.profile.goal,
+                request.profile.activity_level,
+                request.profile.dietary_pattern,
+                *request.profile.preferred_foods,
+                *request.profile.excluded_foods,
+            ]
+            profile_terms = [value for value in profile_terms if value and value != "unspecified"]
+            if profile_terms:
+                retrieval_query += "\\nRelevant profile context: " + ", ".join(profile_terms)
+
         try:
             chunks = self.retriever(
-                request.message,
+                retrieval_query,
                 limit=self.max_evidence,
                 candidate_limit=max(30, self.max_evidence),
                 rerank=True,
