@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from evaluation.benchmark import run_benchmark as _run_benchmark
+from evaluation.ranking import ranking_metrics  # Backwards-compatible re-export.
 
 
 def run_benchmark(dataset_path: Path, output_path: Path, k: int = 5) -> dict:
