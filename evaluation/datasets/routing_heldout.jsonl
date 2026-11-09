@@ -1,0 +1,40 @@
+{"case_id": "heldout-001", "message": "Can you design a 3 day upper lower program", "expected_route": "fitness"}
+{"case_id": "heldout-002", "message": "what's the best way to improve my overhead press", "expected_route": "fitness"}
+{"case_id": "heldout-003", "message": "I keep plateauing on bench, any tips", "expected_route": "fitness"}
+{"case_id": "heldout-004", "message": "lunges or leg press for quads", "expected_route": "fitness"}
+{"case_id": "heldout-005", "message": "recommend a stretching routine after training", "expected_route": "fitness"}
+{"case_id": "heldout-006", "message": "how many reps for hypertrophy", "expected_route": "fitness"}
+{"case_id": "heldout-007", "message": "my lower back hurts during deadlifts what should I change", "expected_route": "fitness"}
+{"case_id": "heldout-008", "message": "beginner kettlebell workout", "expected_route": "fitness"}
+{"case_id": "heldout-009", "message": "is it ok to do cardio every day", "expected_route": "fitness"}
+{"case_id": "heldout-010", "message": "how do I do a proper pull up", "expected_route": "fitness"}
+{"case_id": "heldout-011", "message": "how much caffeine is too much", "expected_route": "nutrition"}
+{"case_id": "heldout-012", "message": "are carbs bad for me", "expected_route": "nutrition"}
+{"case_id": "heldout-013", "message": "is oatmeal a good breakfast", "expected_route": "nutrition"}
+{"case_id": "heldout-014", "message": "how can I get enough protein as a vegan", "expected_route": "nutrition"}
+{"case_id": "heldout-015", "message": "what does a 1800 calorie day look like", "expected_route": "nutrition"}
+{"case_id": "heldout-016", "message": "is seed oil harmful", "expected_route": "nutrition"}
+{"case_id": "heldout-017", "message": "can I drink coffee while fasting", "expected_route": "nutrition"}
+{"case_id": "heldout-018", "message": "what foods are high in potassium", "expected_route": "nutrition"}
+{"case_id": "heldout-019", "message": "how much sugar is in a banana", "expected_route": "nutrition"}
+{"case_id": "heldout-020", "message": "Should I take a multivitamin", "expected_route": "nutrition"}
+{"case_id": "heldout-021", "message": "Give me a 3 day lifting split and a 2500 calorie meal plan", "expected_route": "mixed"}
+{"case_id": "heldout-022", "message": "how should I eat and exercise to lose 5 kg", "expected_route": "mixed"}
+{"case_id": "heldout-023", "message": "what should I eat after lifting to build muscle", "expected_route": "mixed"}
+{"case_id": "heldout-024", "message": "I'm training for a marathon, how should I fuel and what sessions should I do", "expected_route": "mixed"}
+{"case_id": "heldout-025", "message": "plan workouts and meals for my busy week", "expected_route": "mixed"}
+{"case_id": "heldout-026", "message": "is it ok to lift heavy while on a low calorie diet", "expected_route": "mixed"}
+{"case_id": "heldout-027", "message": "how much protein do I need if I train 5 days a week", "expected_route": "mixed"}
+{"case_id": "heldout-028", "message": "best exercises and foods for fat loss", "expected_route": "mixed"}
+{"case_id": "heldout-029", "message": "bulking workout split and macros", "expected_route": "mixed"}
+{"case_id": "heldout-030", "message": "Does cardio or diet matter more for losing weight", "expected_route": "mixed"}
+{"case_id": "heldout-031", "message": "good morning", "expected_route": "clarify"}
+{"case_id": "heldout-032", "message": "what can you do", "expected_route": "clarify"}
+{"case_id": "heldout-033", "message": "I'm bored", "expected_route": "clarify"}
+{"case_id": "heldout-034", "message": "explain quantum physics", "expected_route": "clarify"}
+{"case_id": "heldout-035", "message": "how do I fix my laptop", "expected_route": "clarify"}
+{"case_id": "heldout-036", "message": "what's a good name for my dog", "expected_route": "clarify"}
+{"case_id": "heldout-037", "message": "Can you summarize this article", "expected_route": "clarify"}
+{"case_id": "heldout-038", "message": "I need motivation", "expected_route": "clarify"}
+{"case_id": "heldout-039", "message": "tell me a joke", "expected_route": "clarify"}
+{"case_id": "heldout-040", "message": "help me plan my weekend", "expected_route": "clarify"}
