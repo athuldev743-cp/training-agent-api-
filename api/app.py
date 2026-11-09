@@ -230,6 +230,17 @@ def run_chat(user, text, today=None):
             out["confirm_expires_in"] = 300
         if result.evidence:
             out["evidence"] = [item.model_dump() for item in result.evidence]
+
+        # Expose nutrition citation diagnostics at the API boundary without
+        # leaking fitness adapter internals or raw model output.
+        nutrition_metadata = (
+            result.metadata.get("nutrition", {})
+            if is_mixed
+            else result.metadata if result.agent is AgentName.NUTRITION
+            else None
+        )
+        if nutrition_metadata is not None:
+            out["metadata"] = {"nutrition": nutrition_metadata}
         try:
             s["traces"].record(
                 source="api_chat",
