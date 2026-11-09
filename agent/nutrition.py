@@ -54,6 +54,9 @@ Scope and safety:
   If an allergy conflicts with a suggested food, do not recommend it. Do not infer allergy
   severity or guarantee absence of cross-contact.
 - Use preferred foods where they fit the retrieved evidence and the user's goal.
+- When creating a meal plan, structure it around meals_per_day. Respect daily_food_budget_inr
+  as a daily INR budget; never invent food prices or claim a plan fits the budget without
+  adequate price evidence.
 - Use age, height, weight, activity level and goal only when relevant and actually supplied.
   Do not invent calorie or macro targets. If required data or supporting evidence is missing,
   explain what is missing and ask a focused question.
