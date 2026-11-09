@@ -6,6 +6,7 @@ runs in a separate service so its model memory is not loaded into the main API p
 from __future__ import annotations
 
 import logging
+import math
 import os
 from typing import Any
 
@@ -97,7 +98,7 @@ def _remote_rerank_scores(query: str, documents: list[str]) -> list[float] | Non
         if not isinstance(raw_scores, list) or len(raw_scores) != len(documents):
             raise ValueError("reranker returned an unexpected number of scores")
         scores = [float(score) for score in raw_scores]
-        if any(not __import__("math").isfinite(score) for score in scores):
+        if any(not math.isfinite(score) for score in scores):
             raise ValueError("reranker returned a non-finite score")
         return scores
     except Exception as exc:
