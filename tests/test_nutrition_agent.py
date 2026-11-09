@@ -183,3 +183,31 @@ def test_missing_profile_is_explicit_and_not_inferred():
     assert result.status is AgentStatus.OK
     assert "No saved profile is available" in system
     assert "Do not assume personal details" in system
+
+
+
+def test_personalized_request_uses_profile_terms_for_hybrid_retrieval():
+    llm = MagicMock()
+    llm.create_chat_completion.return_value = {
+        "choices": [{"message": {"content": "Build meals around these preferences [S1]."}}]
+    }
+    calls = []
+    profile = UserProfile(
+        name="Test User", goal="fat_loss", activity_level="moderately_active",
+        dietary_pattern="vegetarian", preferred_foods=["dal"],
+        excluded_foods=["mushroom"],
+    )
+
+    def retriever(query, **kwargs):
+        calls.append(query)
+        return [chunk()]
+
+    result = NutritionAgent(llm, retriever=retriever).run(AgentRequest(
+        user_id="test-user", message="Create a meal plan", profile=profile,
+    ))
+
+    assert result.status is AgentStatus.OK
+    assert "fat_loss" in calls[0]
+    assert "vegetarian" in calls[0]
+    assert "dal" in calls[0]
+    assert "mushroom" in calls[0]
