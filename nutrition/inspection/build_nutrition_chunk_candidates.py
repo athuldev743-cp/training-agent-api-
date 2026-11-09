@@ -71,7 +71,7 @@ def _is_heading(line: str) -> bool:
             all(char == char.upper() for char in letters)
             or (stripped == stripped.title() and " " in stripped)
         )
-        and re.fullmatch(r"[A-Za-z0-9 ,:&()/\\-]+", stripped)
+        and re.fullmatch(r"[A-Za-z0-9 ,:&()/\-]+", stripped)
     )
 
 
@@ -227,11 +227,11 @@ def _split_oversized_unit(unit: str, limit: int = MAX_CHARS) -> list[str]:
         for row in lines[row_start:]:
             current_size = sum(map(len, current)) + max(0, len(current) - 1)
             if current_size + len(row) + 1 > limit and len(current) > len(prefix):
-                groups.append("\\n".join(current))
+                groups.append("\n".join(current))
                 current = list(prefix)
             current.append(row)
         if current:
-            groups.append("\\n".join(current))
+            groups.append("\n".join(current))
         return groups
 
     sentences = re.split(r"(?<=[.!?])\s+", unit)
