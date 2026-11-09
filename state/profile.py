@@ -30,14 +30,15 @@ class UserProfile(BaseModel):
         "very_active", "athlete",
     ] = "unspecified"
     dietary_pattern: Literal[
-        "unspecified", "omnivore", "vegetarian", "eggetarian",
-        "vegan", "pescatarian",
+        "unspecified", "omnivore", "non_vegetarian", "vegetarian",
+        "eggetarian", "vegan", "pescatarian", "jain",
     ] = "unspecified"
     preferred_foods: list[str] = Field(default_factory=list, max_length=30)
     excluded_foods: list[str] = Field(default_factory=list, max_length=30)
     allergies: list[str] = Field(default_factory=list, max_length=30)
     intolerances: list[str] = Field(default_factory=list, max_length=30)
     meals_per_day: int = Field(default=3, ge=1, le=8)
+    daily_food_budget_inr: int | None = Field(default=None, ge=20, le=10000)
 
     @field_validator("preferred_foods", "excluded_foods", "allergies", "intolerances")
     @classmethod
