@@ -38,7 +38,8 @@ DDL = [
        excluded_foods TEXT NOT NULL DEFAULT '[]',
        allergies TEXT NOT NULL DEFAULT '[]',
        intolerances TEXT NOT NULL DEFAULT '[]',
-       meals_per_day INTEGER NOT NULL DEFAULT 3)""",
+       meals_per_day INTEGER NOT NULL DEFAULT 3,
+       daily_food_budget_inr INTEGER)""",
     """CREATE TABLE workouts (id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, user_id TEXT NOT NULL DEFAULT 'local',
        performed_at TEXT NOT NULL, duration_min INTEGER)""",
     """CREATE TABLE set_logs (id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -187,6 +188,7 @@ def _open_schema():
             raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS allergies TEXT NOT NULL DEFAULT '[]'")
             raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS intolerances TEXT NOT NULL DEFAULT '[]'")
             raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS meals_per_day INTEGER NOT NULL DEFAULT 3")
+            raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS daily_food_budget_inr INTEGER")
             raw.execute("INSERT INTO schema_migrations (version, applied_at) VALUES (%s, %s)", (10, datetime.now().isoformat(timespec="seconds")))
             version = 10
         raw.execute("SELECT pg_advisory_unlock(727)")
