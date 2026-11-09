@@ -205,6 +205,7 @@ class NutritionAgent:
             "allergies": profile.allergies,
             "intolerances": profile.intolerances,
             "meals_per_day": profile.meals_per_day,
+            "daily_food_budget_inr": profile.daily_food_budget_inr,
         }
         return json.dumps(profile_data, ensure_ascii=False)
 
