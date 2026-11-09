@@ -1,5 +1,6 @@
 """HTTP API (Step 11/10 contract). The user id always comes from the verified token."""
 import json, logging, os, re, time, uuid
+from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
 from typing import Literal
@@ -19,7 +20,15 @@ logger = logging.getLogger("training_agent.api")
 
 MAX_BODY = 2_000_000
 DB = Path(os.getenv("TRAINING_DB") or Path(__file__).resolve().parent.parent / "data" / "server.db")
-app = FastAPI(title="Local Training Agent API", version="1")
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    try:
+        yield
+    finally:
+        close_database_connections()
+
+
+app = FastAPI(title="Local Training Agent API", version="1", lifespan=lifespan)
 app.state.llm = None
 app.state.exercises = None
 
@@ -402,8 +411,6 @@ def close_database_connections():
         except Exception as exc:
             logger.warning("database shutdown cleanup failed (%s)", type(exc).__name__)
 
-
-app.add_event_handler("shutdown", close_database_connections)
 
 
 def client_ip(request):
