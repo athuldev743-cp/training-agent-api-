@@ -1,9 +1,8 @@
-"""Run reviewed relevance datasets against the live fitness or nutrition retriever."""
+"""Run reviewed relevance datasets against live fitness and nutrition retrievers."""
 from __future__ import annotations
 
 import json
 import math
-import statistics
 import time
 from pathlib import Path
 from typing import Any
@@ -60,28 +59,88 @@ def _search(domain: str, query: str, *, limit: int, candidate_limit: int, rerank
     raise ValueError("domain must be fitness or nutrition")
 
 
-def _run_one(domain: str, query: str, *, k: int, rerank: bool):
+def _search_vector_only(domain: str, query: str, *, limit: int) -> list[dict[str, Any]]:
+    """Semantic-only baseline using the same embedding model and database corpus."""
+    from rag.neon import get_connection
+
+    if domain == "fitness":
+        from rag.hybrid import _get_embedding_model
+        vector = next(_get_embedding_model().embed([query]))
+        vector_text = "[" + ",".join(format(float(value), ".8g") for value in vector) + "]"
+        sql = """
+            SELECT id, content, source, page, chunk_number
+            FROM fitness_knowledge
+            WHERE embedding IS NOT NULL
+            ORDER BY embedding <=> %s::vector
+            LIMIT %s
+        """
+        with get_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(sql, (vector_text, limit))
+                rows = cursor.fetchall()
+        return [
+            {"id": row[0], "content": row[1], "source": row[2],
+             "page": row[3], "chunk_number": row[4], "rerank_status": "not_applicable"}
+            for row in rows
+        ]
+
+    if domain == "nutrition":
+        from rag.nutrition_retrieval import _get_embedding_model, _vector_literal
+        vector = _vector_literal(next(_get_embedding_model().embed([query])))
+        sql = """
+            SELECT chunk_id, content, source_id, source, title, page, chunk_number
+            FROM nutrition_knowledge
+            WHERE embedding IS NOT NULL
+            ORDER BY embedding <=> %s::vector
+            LIMIT %s
+        """
+        with get_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(sql, (vector, limit))
+                rows = cursor.fetchall()
+        return [
+            {"chunk_id": row[0], "content": row[1], "source_id": row[2],
+             "source": row[3], "title": row[4], "page": row[5],
+             "chunk_number": row[6], "rerank_status": "not_applicable"}
+            for row in rows
+        ]
+
+    raise ValueError("domain must be fitness or nutrition")
+
+
+def _run_one(
+    domain: str,
+    query: str,
+    *,
+    k: int,
+    rerank: bool,
+    strategy: str = "hybrid",
+):
     started = time.perf_counter()
     status = "disabled" if not rerank else "unknown"
-    try:
-        rows = _search(
-            domain, query, limit=k, candidate_limit=max(k, 30), rerank=rerank
-        )
-    except Exception as exc:
-        if domain != "fitness" or not rerank:
-            raise
-        from rag.hybrid import RerankerUnavailableError
-        if not isinstance(exc, RerankerUnavailableError):
-            raise
-        rows = _search(
-            domain, query, limit=k, candidate_limit=max(k, 30), rerank=False
-        )
-        status = "fallback_rrf"
+    if strategy == "vector_only":
+        rows = _search_vector_only(domain, query, limit=k)
+        status = "not_applicable"
+    else:
+        try:
+            rows = _search(
+                domain, query, limit=k, candidate_limit=max(k, 30), rerank=rerank
+            )
+        except Exception as exc:
+            if domain != "fitness" or not rerank:
+                raise
+            from rag.hybrid import RerankerUnavailableError
+            if not isinstance(exc, RerankerUnavailableError):
+                raise
+            rows = _search(
+                domain, query, limit=k, candidate_limit=max(k, 30), rerank=False
+            )
+            status = "fallback_rrf"
 
     elapsed_ms = (time.perf_counter() - started) * 1000
     if not rows:
         status = "no_results"
-    elif rerank and status == "unknown":
+    elif strategy != "vector_only" and rerank and status == "unknown":
         if domain == "nutrition":
             status = str(rows[0].get("rerank_status") or (
                 "applied" if "rerank_score" in rows[0] else "fallback_rrf"
@@ -107,21 +166,27 @@ def run_benchmark(
         raise ValueError("k must be between 1 and 20")
 
     cases = load_dataset(dataset_path)
-    modes = {"hybrid_rrf": False, "hybrid_reranked": True}
+    modes = {
+        "vector_only": {"strategy": "vector_only", "rerank": False},
+        "hybrid_rrf": {"strategy": "hybrid", "rerank": False},
+        "hybrid_reranked": {"strategy": "hybrid", "rerank": True},
+    }
     report_modes: dict[str, Any] = {}
 
-    for mode, use_reranker in modes.items():
+    for mode, config in modes.items():
+        # Load embedding/reranker models and warm the database path before timing.
+        # The warm-up query is excluded from quality metrics and latency percentiles.
+        _run_one(domain, cases[0]["query"], k=k, **config)
+
         metrics_rows = []
         latencies = []
         statuses: dict[str, int] = {}
         per_query = []
         for case in cases:
             ranked_ids, elapsed_ms, rerank_status = _run_one(
-                domain, case["query"], k=k, rerank=use_reranker
+                domain, case["query"], k=k, **config
             )
-            metrics = ranking_metrics(
-                ranked_ids, case["relevant_chunk_ids"], k=k
-            )
+            metrics = ranking_metrics(ranked_ids, case["relevant_chunk_ids"], k=k)
             metrics_rows.append(metrics)
             latencies.append(elapsed_ms)
             statuses[rerank_status] = statuses.get(rerank_status, 0) + 1
@@ -149,7 +214,9 @@ def run_benchmark(
         "domain": domain,
         "k": k,
         "dataset": str(dataset_path),
+        "query_count": len(cases),
         "relevance_labels": "human-reviewed chunk IDs supplied by the dataset",
+        "comparison": ["vector_only", "hybrid_rrf", "hybrid_reranked"],
         "metrics": report_modes,
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)

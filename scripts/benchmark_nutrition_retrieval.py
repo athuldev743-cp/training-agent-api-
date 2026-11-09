@@ -1,16 +1,17 @@
-"""Compatibility wrapper for the shared Module 7 retrieval benchmark."""
+"""Compatibility wrapper for the shared retrieval benchmark."""
 import argparse
 import json
 from pathlib import Path
 
 from evaluation.benchmark import run_benchmark as _run_benchmark
-from evaluation.ranking import ranking_metrics
+from evaluation.ranking import ranking_metrics  # Backwards-compatible re-export.
 
 
 def run_benchmark(dataset_path: Path, output_path: Path, k: int = 5) -> dict:
     report = _run_benchmark("nutrition", dataset_path, output_path, k=k)
     results = {}
     for old_name, new_name in (
+        ("vector_only", "vector_only"),
         ("hybrid", "hybrid_rrf"),
         ("hybrid_reranked", "hybrid_reranked"),
     ):
@@ -36,8 +37,8 @@ def run_benchmark(dataset_path: Path, output_path: Path, k: int = 5) -> dict:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Benchmark live nutrition hybrid retrieval.")
-    parser.add_argument("--dataset", type=Path, required=True, help="JSONL with query and relevant_chunk_ids")
+    parser = argparse.ArgumentParser(description="Benchmark live nutrition retrieval strategies.")
+    parser.add_argument("--dataset", type=Path, required=True, help="JSONL with query and reviewed relevant_chunk_ids")
     parser.add_argument("--output", type=Path, default=Path("artifacts/module-7/nutrition.json"))
     parser.add_argument("--k", type=int, default=5)
     args = parser.parse_args()
