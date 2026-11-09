@@ -36,6 +36,7 @@ class ProfileStore:
             allergies=json.loads(row["allergies"] or "[]"),
             intolerances=json.loads(row["intolerances"] or "[]"),
             meals_per_day=row["meals_per_day"],
+            daily_food_budget_inr=row["daily_food_budget_inr"],
         )
 
     def save(self, profile: UserProfile) -> None:
@@ -48,13 +49,14 @@ class ProfileStore:
             """INSERT OR REPLACE INTO user_profile
                    (user_id, name, age, height_cm, weight_kg, goal, experience, equipment,
                     session_minutes, limitations, screening, activity_level, dietary_pattern,
-                    preferred_foods, excluded_foods, allergies, intolerances, meals_per_day)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    preferred_foods, excluded_foods, allergies, intolerances, meals_per_day,
+                    daily_food_budget_inr)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (self.user_id, profile.name, profile.age, profile.height_cm, profile.weight_kg,
              profile.goal, profile.experience, equipment, profile.session_minutes,
              json.dumps(profile.limitations), profile.screening, profile.activity_level,
              profile.dietary_pattern, preferred_foods, excluded_foods, allergies,
-             intolerances, profile.meals_per_day),
+             intolerances, profile.meals_per_day, profile.daily_food_budget_inr),
         )
         self.conn.commit()
 
