@@ -216,7 +216,7 @@ def _split_oversized_unit(unit: str, limit: int = MAX_CHARS) -> list[str]:
         return [unit]
     lines = unit.splitlines()
     def has_three_columns(line: str) -> bool:
-        return len([cell for cell in re.split(r"\\s{2,}|\\t+|\\|", line) if cell.strip()]) >= 3
+        return len([cell for cell in re.split(r"\s{2,}|\t+|\|", line) if cell.strip()]) >= 3
 
     if len(lines) > 1 and all(has_three_columns(line) for line in lines[1:]):
         # Repeat both the section title and column header when splitting a long table.
@@ -230,11 +230,11 @@ def _split_oversized_unit(unit: str, limit: int = MAX_CHARS) -> list[str]:
         for row in lines[row_start:]:
             current_size = sum(map(len, current)) + max(0, len(current) - 1)
             if current_size + len(row) + 1 > limit and len(current) > len(prefix):
-                groups.append("\\n".join(current))
+                groups.append("\n".join(current))
                 current = list(prefix)
             current.append(row)
         if current:
-            groups.append("\\n".join(current))
+            groups.append("\n".join(current))
         return groups
 
     sentences = re.split(r"(?<=[.!?])\s+", unit)
