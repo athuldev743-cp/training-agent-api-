@@ -4,7 +4,7 @@ import re
 import sqlite3
 from pathlib import Path
 
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 
 # Rows that predate multi-user support, and the default owner for single-user use (CLI, MCP, demos).
 LOCAL_USER_ID = "local"
@@ -347,6 +347,21 @@ def migrate(conn: sqlite3.Connection) -> None:
                    )"""
             )
             conn.execute("CREATE INDEX IF NOT EXISTS idx_refresh_user ON refresh_tokens(user_id)")
+
+        if version < 10:
+            # Additive defaults preserve every existing user's workout profile.
+            additions = {
+                "activity_level": "TEXT NOT NULL DEFAULT 'unspecified'",
+                "dietary_pattern": "TEXT NOT NULL DEFAULT 'unspecified'",
+                "preferred_foods": "TEXT NOT NULL DEFAULT '[]'",
+                "excluded_foods": "TEXT NOT NULL DEFAULT '[]'",
+                "allergies": "TEXT NOT NULL DEFAULT '[]'",
+                "intolerances": "TEXT NOT NULL DEFAULT '[]'",
+                "meals_per_day": "INTEGER NOT NULL DEFAULT 3",
+            }
+            for column, declaration in additions.items():
+                if not _has_column(conn, "user_profile", column):
+                    conn.execute(f"ALTER TABLE user_profile ADD COLUMN {column} {declaration}")
 
         new_violations = _fk_violations(conn) - violations_before
         if new_violations:
