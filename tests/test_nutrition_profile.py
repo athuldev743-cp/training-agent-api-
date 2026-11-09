@@ -100,3 +100,47 @@ def test_v9_profile_migrates_without_losing_existing_workout_data(tmp_path):
 def test_profile_rejects_invalid_nutrition_fields(field, value):
     with pytest.raises(ValidationError):
         UserProfile(name="Invalid", **{field: value})
+
+
+
+def test_postgres_v9_schema_migration_adds_all_nutrition_columns(monkeypatch):
+    import state.pg_compat as pg
+
+    class Cursor:
+        def __init__(self, row=None):
+            self.row = row
+
+        def fetchone(self):
+            return self.row
+
+    class FakeConnection:
+        def __init__(self):
+            self.statements = []
+
+        def execute(self, statement, params=()):
+            self.statements.append(statement)
+            if "to_regclass('schema_migrations')" in statement:
+                return Cursor(("schema_migrations",))
+            if "SELECT max(version)" in statement:
+                return Cursor((9,))
+            return Cursor()
+
+        def close(self):
+            pass
+
+    fake = FakeConnection()
+    monkeypatch.setattr(pg, "open_raw", lambda direct=True: fake)
+    monkeypatch.setattr(pg, "_all", [])
+    monkeypatch.setenv("PG_SCHEMA", "nutrition_test")
+
+    connection, schema = pg._open_schema()
+
+    assert connection is fake
+    assert schema == "nutrition_test"
+    statements = "\n".join(fake.statements)
+    for column in (
+        "activity_level", "dietary_pattern", "preferred_foods", "excluded_foods",
+        "allergies", "intolerances", "meals_per_day", "daily_food_budget_inr",
+    ):
+        assert f"ADD COLUMN IF NOT EXISTS {column}" in statements
+    assert "INSERT INTO schema_migrations" in statements
