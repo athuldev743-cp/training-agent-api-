@@ -72,6 +72,14 @@ def test_chat_endpoint_routes_nutrition_to_nutrition_agent(monkeypatch):
                 agent=AgentName.NUTRITION,
                 status=AgentStatus.OK,
                 message="Protein guidance grounded in [S1].",
+                metadata={
+                    "pipeline_stage": "citation_validation",
+                    "citation_validation": "passed",
+                    "citation_attempts": 1,
+                    "allowed_citations": ["[S1]"],
+                    "observed_citations": ["[S1]"],
+                    "citation_sources": [{"label": "[S1]", "source": "protein-guide.pdf", "page": 2, "chunk_number": 0}],
+                },
             )
 
     monkeypatch.setattr("agent.nutrition.NutritionAgent", StubNutritionAgent)
@@ -92,6 +100,8 @@ def test_chat_endpoint_routes_nutrition_to_nutrition_agent(monkeypatch):
     assert response.json()["tool"] == "nutrition_agent"
     assert response.json()["agent"] == "nutrition"
     assert "[S1]" in response.json()["reply"]
+    assert response.json()["metadata"]["nutrition"]["citation_validation"] == "passed"
+    assert response.json()["metadata"]["nutrition"]["citation_sources"][0]["source"] == "protein-guide.pdf"
     assert calls == ["created", "verified-user"]
 
 
@@ -122,6 +132,7 @@ def test_mixed_chat_invokes_both_agents_and_preserves_fitness_confirmation(monke
                 agent=AgentName.NUTRITION,
                 status=AgentStatus.OK,
                 message="Nutrition evidence [S1].",
+                metadata={"citation_validation": "passed", "citation_sources": [{"label": "[S1]", "source": "mixed-guide.pdf"}]},
             )
 
     monkeypatch.setattr("agent.dispatcher.handle_message", handle)
@@ -136,6 +147,8 @@ def test_mixed_chat_invokes_both_agents_and_preserves_fitness_confirmation(monke
     assert result["status"] == "confirm"
     assert result["agent"] == "multi_agent"
     assert result["confirm_token"] == "signed-confirm-token"
+    assert result["metadata"]["nutrition"]["citation_validation"] == "passed"
+    assert result["metadata"]["nutrition"]["citation_sources"][0]["source"] == "mixed-guide.pdf"
     assert "Fitness:" in result["reply"] and "Nutrition:" in result["reply"]
 
 
