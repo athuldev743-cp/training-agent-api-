@@ -1,5 +1,5 @@
 """HTTP API (Step 11/10 contract). The user id always comes from the verified token."""
-import json, os, re, time
+import json, logging, os, re, time, uuid
 from datetime import date
 from pathlib import Path
 from typing import Literal
@@ -14,6 +14,8 @@ from state.programs import ProgramStore
 from state.store import ProfileStore
 from state.sync import apply_changes, export_changes
 from state.traces import TraceStore
+
+logger = logging.getLogger("training_agent.api")
 
 MAX_BODY = 2_000_000
 DB = Path(os.getenv("TRAINING_DB") or Path(__file__).resolve().parent.parent / "data" / "server.db")
@@ -42,6 +44,39 @@ async def limit_body(request: Request, call_next):
     return await call_next(request)
 
 
+@app.middleware("http")
+async def request_observability(request: Request, call_next):
+    request_id = uuid.uuid4().hex
+    request.state.request_id = request_id
+    started = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        logger.error(
+            "http_request_failed",
+            extra={
+                "request_id": request_id,
+                "http_method": request.method,
+                "http_path": request.url.path,
+                "error_type": type(exc).__name__,
+            },
+        )
+        raise
+    duration_ms = (time.perf_counter() - started) * 1000
+    response.headers["X-Request-ID"] = request_id
+    logger.info(
+        "http_request_completed",
+        extra={
+            "request_id": request_id,
+            "http_method": request.method,
+            "http_path": request.url.path,
+            "http_status": response.status_code,
+            "duration_ms": round(duration_ms, 3),
+        },
+    )
+    return response
+
+
 @app.exception_handler(Exception)
 async def unhandled(request, exc):
     return JSONResponse({"error": "internal error"}, status_code=500)  # no stack trace, no details
@@ -58,7 +93,7 @@ def current_user(authorization: str | None = Header(default=None)) -> str:
 
 def stores(user):
     return {"history": HistoryStore(DB, user_id=user), "programs": ProgramStore(DB, user_id=user),
-            "profile": ProfileStore(DB, user_id=user), "traces": TraceStore(DB, user_id=user)}
+            "profile": ProfileStore(DB, user_id=user), "traces": TraceStore(DB, user_id=user, store_text=False)}
 
 
 def close(s):
@@ -112,6 +147,7 @@ def sync_up(body: SyncIn, user: str = Depends(current_user)):
 
 def run_chat(user, text, today=None):
     """Run the authenticated request through the LangGraph domain orchestrator."""
+    started = time.perf_counter()
     from agent.contracts import AgentName, AgentRequest, AgentStatus
     from agent.dispatcher import handle_message
     from agent.fitness_adapter import FitnessAgentAdapter
@@ -185,6 +221,15 @@ def run_chat(user, text, today=None):
             out["confirm_expires_in"] = 300
         if result.evidence:
             out["evidence"] = [item.model_dump() for item in result.evidence]
+        try:
+            s["traces"].record(
+                source="api_chat",
+                tool=tool,
+                status=status,
+                total_s=time.perf_counter() - started,
+            )
+        except Exception as exc:
+            logger.warning("chat trace persistence failed (%s)", type(exc).__name__)
         return out
     finally:
         close(s)
@@ -224,7 +269,23 @@ import collections, hashlib, threading
 from state.account import delete_account, export_account
 from state.profile import UserProfile
 
-RATE = {"limit": int(os.getenv("API_RATE_LIMIT", "120")), "auth_limit": int(os.getenv("API_AUTH_RATE_LIMIT", "10")), "window": 60.0}
+def _bounded_env_int(name: str, default: int, maximum: int) -> int:
+    try:
+        value = int(os.getenv(name, str(default)))
+    except (TypeError, ValueError):
+        logger.warning("Invalid integer configuration for %s; using default", name)
+        return default
+    if not 1 <= value <= maximum:
+        logger.warning("Out-of-range configuration for %s; using default", name)
+        return default
+    return value
+
+
+RATE = {
+    "limit": _bounded_env_int("API_RATE_LIMIT", 120, 10000),
+    "auth_limit": _bounded_env_int("API_AUTH_RATE_LIMIT", 10, 1000),
+    "window": 60.0,
+}
 _hits = collections.defaultdict(collections.deque)
 _rl = threading.Lock()
 
@@ -311,11 +372,38 @@ def account_delete(body: DeleteIn, user: str = Depends(current_user)):
 @app.get("/ready")
 def ready():
     from agent.cloud_llm import PROVIDERS
-    checks = {"token_secret": len(os.getenv("API_TOKEN_SECRET", "")) >= 32,
-              "providers_configured": [n for n, _, k, _, _ in PROVIDERS if os.getenv(k)],
-              "state_backend": os.getenv("STATE_BACKEND", "sqlite")}
-    good = checks["token_secret"] and bool(checks["providers_configured"])
+
+    backend = os.getenv("STATE_BACKEND", "sqlite")
+    database_ready = True
+    if backend == "postgres":
+        try:
+            from rag.neon import check_connection
+            database_ready = check_connection().get("status") == "connected"
+        except Exception as exc:
+            database_ready = False
+            logger.warning("readiness database check failed (%s)", type(exc).__name__)
+
+    checks = {
+        "token_secret": len(os.getenv("API_TOKEN_SECRET", "")) >= 32,
+        "providers_configured": [n for n, _, k, _, _ in PROVIDERS if os.getenv(k)],
+        "state_backend": backend,
+        "database_ready": database_ready,
+    }
+    good = checks["token_secret"] and bool(checks["providers_configured"]) and database_ready
     return JSONResponse({"ready": good, **checks}, status_code=200 if good else 503)
+
+
+def close_database_connections():
+    """Close thread-local PostgreSQL connections when the API worker shuts down."""
+    if os.getenv("STATE_BACKEND") == "postgres":
+        try:
+            from state.pg_compat import close_all
+            close_all()
+        except Exception as exc:
+            logger.warning("database shutdown cleanup failed (%s)", type(exc).__name__)
+
+
+app.add_event_handler("shutdown", close_database_connections)
 
 
 def client_ip(request):
