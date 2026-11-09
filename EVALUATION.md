@@ -47,7 +47,7 @@ python scripts/benchmark_retrieval.py --domain nutrition --dataset evaluation/da
 
 The report contains macro-averaged Precision@5, Recall@5, MRR@5 and NDCG@5, p50/p95 retriever latency, reranker status counts and per-query results. Use the same reviewed queries, corpus snapshot and candidate limits across strategies. For a meaningful comparison, aim for at least 50 reviewed queries per domain and include a range of intents and difficulty levels. This is a recommended sample size, not a result already achieved.
 
-The timing is retriever-call latency in the benchmark process. It does not include authentication, API routing, LLM generation, network/client latency or the full user request.
+Before timing each strategy, the benchmark runs one warm-up query to initialize model and database paths; that query is excluded from the reported quality metrics and latency percentiles. Reported p50/p95 values therefore represent warmed retriever-call latency in the benchmark process, not cold-start latency. They do not include authentication, API routing, LLM generation, network/client latency or the full user request.
 
 ## 3. Nutrition answer-grounding audit
 
