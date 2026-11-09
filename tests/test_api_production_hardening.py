@@ -22,7 +22,11 @@ def test_request_id_and_latency_are_logged_without_request_body(caplog):
     assert response.status_code == 200
     assert len(response.headers["X-Request-ID"]) == 32
     assert "http_request_completed" in caplog.text
-    assert "health" in caplog.text
+    assert any(
+        getattr(record, "http_path", None) == "/health"
+        and hasattr(record, "duration_ms")
+        for record in caplog.records
+    )
 
 
 def test_ready_returns_503_when_postgres_is_unavailable(monkeypatch):
