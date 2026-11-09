@@ -212,3 +212,59 @@ def test_personalized_request_uses_profile_terms_for_hybrid_retrieval():
     assert "vegetarian" in calls[0]
     assert "dal" in calls[0]
     assert "mushroom" in calls[0]
+
+def test_invalid_citation_gets_one_repair_attempt_and_returns_diagnostics():
+    llm = MagicMock()
+    llm.create_chat_completion.side_effect = [
+        {"choices": [{"message": {"content": "Protein helps recovery [1]."}}]},
+        {"choices": [{"message": {"content": "Protein supports recovery [S1]."}}]},
+    ]
+    result = NutritionAgent(llm, retriever=lambda *a, **k: [chunk()]).run(request())
+
+    assert result.status is AgentStatus.OK
+    assert result.metadata["citation_validation"] == "passed"
+    assert result.metadata["citation_attempts"] == 2
+    assert result.metadata["citation_sources"][0]["label"] == "[S1]"
+    assert llm.create_chat_completion.call_count == 2
+
+
+def test_failed_citation_validation_exposes_safe_diagnostics():
+    llm = MagicMock()
+    llm.create_chat_completion.return_value = {
+        "choices": [{"message": {"content": "Protein helps recovery [S9]."}}]
+    }
+    result = NutritionAgent(llm, retriever=lambda *a, **k: [chunk()]).run(request())
+
+    assert result.status is AgentStatus.UNAVAILABLE
+    assert result.metadata["pipeline_stage"] == "citation_validation"
+    assert result.metadata["failure_type"] == "unknown_citation"
+    assert result.metadata["allowed_citations"] == ["[S1]"]
+    assert result.metadata["observed_citations"] == ["[S9]"]
+    assert result.metadata["citation_attempts"] == 2
+
+
+def test_personalized_retrieval_includes_allergy_and_intolerance_context():
+    llm = MagicMock()
+    llm.create_chat_completion.return_value = {
+        "choices": [{"message": {"content": "Use suitable protein sources [S1]."}}]
+    }
+    calls = []
+    profile = UserProfile(
+        name="Test User",
+        goal="muscle",
+        dietary_pattern="vegetarian",
+        allergies=["peanut"],
+        intolerances=["lactose"],
+    )
+
+    def retriever(query, **kwargs):
+        calls.append(query)
+        return [chunk()]
+
+    result = NutritionAgent(llm, retriever=retriever).run(AgentRequest(
+        user_id="test-user", message="Create a meal plan for me", profile=profile,
+    ))
+
+    assert result.status is AgentStatus.OK
+    assert "peanut" in calls[0]
+    assert "lactose" in calls[0]
