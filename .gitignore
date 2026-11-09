@@ -4,3 +4,7 @@
 *.db
 __pycache__/
 .venv/
+
+.coverage
+artifacts/
+*.egg-info/
