@@ -89,8 +89,8 @@ def test_oversized_rda_table_repeats_section_and_column_headers():
     section = "Protein Requirements By Age"
     header = "Age group    Sex    Protein (g/day)"
     rows = [f"Age {i}    Male    {50 + i}" for i in range(1, 70)]
-    parts = _split_oversized_unit("\\n".join([section, header, *rows]), limit=240)
+    parts = _split_oversized_unit("\n".join([section, header, *rows]), limit=240)
     assert len(parts) > 1
-    assert all(part.startswith(section + "\\n" + header) for part in parts)
+    assert all(part.startswith(section + "\n" + header) for part in parts)
     for row in rows:
         assert sum(row in part for part in parts) == 1
