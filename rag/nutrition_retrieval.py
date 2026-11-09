@@ -22,7 +22,7 @@ EMBEDDING_DIMENSIONS = 384
 RRF_K = 60
 MAX_LIMIT = 20
 MAX_CANDIDATES = 100
-RERANKER_TIMEOUT_SECONDS = float(os.getenv("NUTRITION_RERANKER_TIMEOUT", "30"))
+DEFAULT_RERANKER_TIMEOUT_SECONDS = 30.0
 
 _embedding_model: TextEmbedding | None = None
 
@@ -64,6 +64,19 @@ LIMIT %s
 """
 
 
+def _reranker_timeout_from_env() -> float:
+    raw = os.getenv("NUTRITION_RERANKER_TIMEOUT", str(DEFAULT_RERANKER_TIMEOUT_SECONDS))
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        logger.warning("Invalid nutrition reranker timeout; using default")
+        return DEFAULT_RERANKER_TIMEOUT_SECONDS
+    if not math.isfinite(value) or not 0.1 <= value <= 120.0:
+        logger.warning("Out-of-range nutrition reranker timeout; using default")
+        return DEFAULT_RERANKER_TIMEOUT_SECONDS
+    return value
+
+
 def _get_embedding_model() -> TextEmbedding:
     global _embedding_model
     if _embedding_model is None:
@@ -75,6 +88,8 @@ def _vector_literal(values: Any) -> str:
     vector = [float(value) for value in values]
     if len(vector) != EMBEDDING_DIMENSIONS:
         raise ValueError(f"embedding must contain {EMBEDDING_DIMENSIONS} dimensions")
+    if any(not math.isfinite(value) for value in vector):
+        raise ValueError("embedding values must be finite")
     return "[" + ",".join(format(value, ".8g") for value in vector) + "]"
 
 
@@ -90,7 +105,7 @@ def _remote_rerank_scores(query: str, documents: list[str]) -> list[float] | Non
             f"{base_url}/rerank",
             json={"query": query, "documents": documents},
             headers={"X-API-Key": api_key},
-            timeout=RERANKER_TIMEOUT_SECONDS,
+            timeout=_reranker_timeout_from_env(),
         )
         response.raise_for_status()
         payload = response.json()
@@ -118,9 +133,9 @@ def search_nutrition(
     """Search nutrition_knowledge and return source-attributed chunks."""
     if not isinstance(query, str) or not query.strip():
         raise ValueError("query must be a non-empty string")
-    if not 1 <= limit <= MAX_LIMIT:
+    if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= MAX_LIMIT:
         raise ValueError(f"limit must be between 1 and {MAX_LIMIT}")
-    if not limit <= candidate_limit <= MAX_CANDIDATES:
+    if isinstance(candidate_limit, bool) or not isinstance(candidate_limit, int) or not limit <= candidate_limit <= MAX_CANDIDATES:
         raise ValueError(f"candidate_limit must be between limit and {MAX_CANDIDATES}")
 
     clean_query = query.strip()
@@ -145,15 +160,20 @@ def search_nutrition(
             "page": row[5],
             "chunk_number": row[6],
             "rrf_score": float(row[7]),
+            "rerank_status": "disabled",
         }
         for row in rows
     ]
 
     if rerank and results:
         scores = _remote_rerank_scores(clean_query, [item["content"] for item in results])
-        if scores is not None:
+        if scores is None:
+            for item in results:
+                item["rerank_status"] = "fallback_rrf"
+        else:
             for item, score in zip(results, scores):
                 item["rerank_score"] = score
+                item["rerank_status"] = "applied"
             results.sort(key=lambda item: item["rerank_score"], reverse=True)
 
     return results[:limit]

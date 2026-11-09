@@ -38,7 +38,7 @@ jobs:
           python -m pip install pytest
 
       - name: Compile application packages
-        run: python -m compileall -q agent api engine rag state nutrition_ingestion services
+        run: python -m compileall -q agent api engine rag state nutrition_ingestion services evaluation scripts
 
       - name: Import FastAPI application
         run: |
@@ -47,9 +47,10 @@ jobs:
 
       - name: Run tests
         run: |
-          mkdir -p artifacts/module-4 artifacts/module-5
-          python -m pytest -q --junitxml=artifacts/module-4/pytest-junit.xml
-          cp artifacts/module-4/pytest-junit.xml artifacts/module-5/pytest-junit.xml
+          mkdir -p artifacts/module-4 artifacts/module-5 artifacts/module-7
+          python -m pytest -q --junitxml=artifacts/module-7/pytest-junit.xml
+          cp artifacts/module-7/pytest-junit.xml artifacts/module-4/pytest-junit.xml
+          cp artifacts/module-7/pytest-junit.xml artifacts/module-5/pytest-junit.xml
 
       - name: Generate long-document and multi-page PDF fixtures
         if: matrix.python-version == '3.13'
@@ -99,5 +100,14 @@ jobs:
         with:
           name: module-5-orchestration-tests
           path: artifacts/module-5/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Module 7 evaluation and hardening test report
+        if: matrix.python-version == '3.13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-7-evaluation-hardening-tests
+          path: artifacts/module-7/
           if-no-files-found: error
           retention-days: 14
