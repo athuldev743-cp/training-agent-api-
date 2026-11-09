@@ -137,12 +137,14 @@ def block_order(blocks: list[dict[str, Any]], page_width: float) -> list[dict[st
         sorted(right_col, key=lambda b: (b["bbox"][1], b["bbox"][0]))
     )
     result = []
-    for span in sorted(spanning, key=lambda b: b["bbox"][1]):
-        while columns and columns[0]["bbox"][1] <= span["bbox"][1]:
-            result.append(columns.pop(0))
+    for span in sorted(spanning, key=lambda block: block["bbox"][1]):
+        span_y = span["bbox"][1]
+        above = [block for block in columns if block["bbox"][1] <= span_y]
+        columns = [block for block in columns if block["bbox"][1] > span_y]
+        result.extend(above)
         result.append(span)
     result.extend(columns)
-    return result
+
 
 
 def _is_table_row(line: str) -> bool:
