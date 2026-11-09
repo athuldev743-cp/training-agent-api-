@@ -29,18 +29,34 @@ class ProfileStore:
             session_minutes=row["session_minutes"],
             limitations=limitations,
             screening=row["screening"],
+            activity_level=row["activity_level"],
+            dietary_pattern=row["dietary_pattern"],
+            preferred_foods=json.loads(row["preferred_foods"] or "[]"),
+            excluded_foods=json.loads(row["excluded_foods"] or "[]"),
+            allergies=json.loads(row["allergies"] or "[]"),
+            intolerances=json.loads(row["intolerances"] or "[]"),
+            meals_per_day=row["meals_per_day"],
+            daily_food_budget_inr=row["daily_food_budget_inr"],
         )
 
     def save(self, profile: UserProfile) -> None:
         equipment = json.dumps(profile.equipment) if profile.equipment is not None else None
+        preferred_foods = json.dumps(profile.preferred_foods)
+        excluded_foods = json.dumps(profile.excluded_foods)
+        allergies = json.dumps(profile.allergies)
+        intolerances = json.dumps(profile.intolerances)
         self.conn.execute(
             """INSERT OR REPLACE INTO user_profile
                    (user_id, name, age, height_cm, weight_kg, goal, experience, equipment,
-                    session_minutes, limitations, screening)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    session_minutes, limitations, screening, activity_level, dietary_pattern,
+                    preferred_foods, excluded_foods, allergies, intolerances, meals_per_day,
+                    daily_food_budget_inr)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (self.user_id, profile.name, profile.age, profile.height_cm, profile.weight_kg,
              profile.goal, profile.experience, equipment, profile.session_minutes,
-             json.dumps(profile.limitations), profile.screening),
+             json.dumps(profile.limitations), profile.screening, profile.activity_level,
+             profile.dietary_pattern, preferred_foods, excluded_foods, allergies,
+             intolerances, profile.meals_per_day, profile.daily_food_budget_inr),
         )
         self.conn.commit()
 

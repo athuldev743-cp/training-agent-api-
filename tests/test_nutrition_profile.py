@@ -1,0 +1,146 @@
+import sqlite3
+
+import pytest
+from pydantic import ValidationError
+
+from state.profile import UserProfile
+from state.store import ProfileStore
+
+
+def test_profile_store_round_trips_nutrition_preferences():
+    store = ProfileStore()
+    try:
+        profile = UserProfile(
+            name="Nutrition Test",
+            age=26,
+            height_cm=174,
+            weight_kg=76,
+            goal="fat_loss",
+            experience="intermediate",
+            equipment=["dumbbells"],
+            limitations=["knee"],
+            activity_level="moderately_active",
+            dietary_pattern="eggetarian",
+            preferred_foods=["eggs", "rice"],
+            excluded_foods=["mushroom"],
+            allergies=["peanut"],
+            intolerances=["lactose"],
+            meals_per_day=4,
+            daily_food_budget_inr=250,
+        )
+        store.save(profile)
+        loaded = store.get()
+
+        assert loaded is not None
+        assert loaded.model_dump() == profile.model_dump()
+    finally:
+        store.close()
+
+
+def test_v9_profile_migrates_without_losing_existing_workout_data(tmp_path):
+    path = tmp_path / "legacy-v9.db"
+    conn = sqlite3.connect(path)
+    conn.execute(
+        """CREATE TABLE user_profile (
+            user_id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            age INTEGER,
+            height_cm REAL,
+            weight_kg REAL,
+            goal TEXT NOT NULL,
+            experience TEXT NOT NULL,
+            equipment TEXT,
+            session_minutes INTEGER NOT NULL,
+            limitations TEXT,
+            screening TEXT NOT NULL DEFAULT 'not_asked'
+        )"""
+    )
+    conn.execute(
+        """INSERT INTO user_profile
+           (user_id, name, age, height_cm, weight_kg, goal, experience,
+            equipment, session_minutes, limitations, screening)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        ("legacy-user", "Existing User", 31, 170, 72, "strength", "beginner",
+         '["dumbbells"]', 45, '["knee"]', "clear"),
+    )
+    conn.execute("PRAGMA user_version = 9")
+    conn.commit()
+    conn.close()
+
+    store = ProfileStore(path, user_id="legacy-user")
+    try:
+        loaded = store.get()
+        assert loaded is not None
+        assert loaded.name == "Existing User"
+        assert loaded.age == 31
+        assert loaded.goal == "strength"
+        assert loaded.equipment == ["dumbbells"]
+        assert loaded.limitations == ["knee"]
+        assert loaded.activity_level == "unspecified"
+        assert loaded.dietary_pattern == "unspecified"
+        assert loaded.preferred_foods == []
+        assert loaded.allergies == []
+        assert loaded.meals_per_day == 3
+        assert loaded.daily_food_budget_inr is None
+        assert store.conn.execute("PRAGMA user_version").fetchone()[0] == 10
+    finally:
+        store.close()
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("activity_level", "extremely_active"),
+        ("dietary_pattern", "carnivore"),
+        ("meals_per_day", 0),
+        ("allergies", [""]),
+        ("preferred_foods", ["x" * 61]),
+    ],
+)
+def test_profile_rejects_invalid_nutrition_fields(field, value):
+    with pytest.raises(ValidationError):
+        UserProfile(name="Invalid", **{field: value})
+
+
+
+def test_postgres_v9_schema_migration_adds_all_nutrition_columns(monkeypatch):
+    import state.pg_compat as pg
+
+    class Cursor:
+        def __init__(self, row=None):
+            self.row = row
+
+        def fetchone(self):
+            return self.row
+
+    class FakeConnection:
+        def __init__(self):
+            self.statements = []
+
+        def execute(self, statement, params=()):
+            self.statements.append(statement)
+            if "to_regclass('schema_migrations')" in statement:
+                return Cursor(("schema_migrations",))
+            if "SELECT max(version)" in statement:
+                return Cursor((9,))
+            return Cursor()
+
+        def close(self):
+            pass
+
+    fake = FakeConnection()
+    monkeypatch.setattr(pg, "open_raw", lambda direct=True: fake)
+    monkeypatch.setattr(pg, "_all", [])
+    monkeypatch.setenv("PG_SCHEMA", "nutrition_test")
+
+    connection, schema = pg._open_schema()
+
+    assert connection is fake
+    assert schema == "nutrition_test"
+    statements = "\n".join(fake.statements)
+    for column in (
+        "activity_level", "dietary_pattern", "preferred_foods", "excluded_foods",
+        "allergies", "intolerances", "meals_per_day", "daily_food_budget_inr",
+    ):
+        assert f"ADD COLUMN IF NOT EXISTS {column}" in statements
+    assert "INSERT INTO schema_migrations" in statements

@@ -193,3 +193,57 @@ def test_fitness_concept_response_exposes_domain_agent_without_changing_legacy_t
     assert response.json()["agent"] == "fitness"
     assert response.json()["tool"] == "general_chat"
     assert response.json()["status"] == "ok"
+
+
+
+def test_authenticated_profile_reaches_nutrition_without_changing_fitness_profile(monkeypatch):
+    profile = api.UserProfile(
+        name="Profile Test", age=28, goal="muscle",
+        equipment=["dumbbells"], dietary_pattern="eggetarian",
+        preferred_foods=["eggs"], allergies=["peanut"],
+    )
+    seen = {"fitness": None, "nutrition": None}
+
+    class ProfileStore:
+        def get(self):
+            return profile
+
+    monkeypatch.setattr(api, "stores", lambda user: {
+        "profile": ProfileStore(),
+        "programs": FakeProgramStore(),
+        "history": FakeHistoryStore(),
+        "traces": FakeStore(),
+    })
+    monkeypatch.setattr(api, "close", lambda stores: None)
+    monkeypatch.setattr(api, "model", lambda: object())
+    monkeypatch.setattr(api, "exercises", lambda: [])
+
+    def handle(llm, message, exercises, passed_profile, programs, today, history):
+        seen["fitness"] = passed_profile
+        return {"status": "ok", "tool": "general_chat", "data": {}, "reply": "Workout guidance."}
+
+    class StubNutritionAgent:
+        name = AgentName.NUTRITION
+
+        def __init__(self, llm):
+            pass
+
+        def run(self, request):
+            seen["nutrition"] = request.profile
+            return AgentResult(
+                request_id=request.request_id, agent=AgentName.NUTRITION,
+                status=AgentStatus.OK, message="Meal guidance [S1].",
+            )
+
+    monkeypatch.setattr("agent.dispatcher.handle_message", handle)
+    monkeypatch.setattr("agent.nutrition.NutritionAgent", StubNutritionAgent)
+
+    result = api.run_chat(
+        "verified-user", "Create a workout and suggest meals", date.today()
+    )
+
+    assert result["agent"] == "multi_agent"
+    assert seen["fitness"] is profile
+    assert seen["nutrition"] is profile
+    assert seen["nutrition"].dietary_pattern == "eggetarian"
+    assert seen["nutrition"].allergies == ["peanut"]
