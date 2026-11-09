@@ -86,7 +86,7 @@ def repair_mojibake(value: str) -> str:
     if not any(marker in value for marker in MOJIBAKE_MARKERS):
         return value
     try:
-        candidate = value.encode("latin-1").decode("utf-8")
+        candidate = value.encode("cp1252").decode("utf-8")
     except (UnicodeEncodeError, UnicodeDecodeError):
         return value
     before = sum(value.count(marker) for marker in MOJIBAKE_MARKERS)
@@ -215,11 +215,14 @@ def _split_oversized_unit(unit: str, limit: int = MAX_CHARS) -> list[str]:
     if len(unit) <= limit:
         return [unit]
     lines = unit.splitlines()
-    if len(lines) > 1 and all(_is_table_row(line) for line in lines[1:]):
+    def has_three_columns(line: str) -> bool:
+        return len([cell for cell in re.split(r"\\s{2,}|\\t+|\\|", line) if cell.strip()]) >= 3
+
+    if len(lines) > 1 and all(has_three_columns(line) for line in lines[1:]):
         # Repeat both the section title and column header when splitting a long table.
         prefix = [lines[0]]
         row_start = 1
-        if not _is_table_row(lines[0]) and len(lines) > 2:
+        if not has_three_columns(lines[0]) and len(lines) > 2:
             prefix.append(lines[1])
             row_start = 2
         groups: list[str] = []
@@ -227,11 +230,11 @@ def _split_oversized_unit(unit: str, limit: int = MAX_CHARS) -> list[str]:
         for row in lines[row_start:]:
             current_size = sum(map(len, current)) + max(0, len(current) - 1)
             if current_size + len(row) + 1 > limit and len(current) > len(prefix):
-                groups.append("\n".join(current))
+                groups.append("\\n".join(current))
                 current = list(prefix)
             current.append(row)
         if current:
-            groups.append("\n".join(current))
+            groups.append("\\n".join(current))
         return groups
 
     sentences = re.split(r"(?<=[.!?])\s+", unit)
