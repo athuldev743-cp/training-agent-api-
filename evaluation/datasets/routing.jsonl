@@ -1,0 +1,102 @@
+{"case_id": "route-001", "message": "Build a workout plan for me", "expected_route": "fitness"}
+{"case_id": "route-002", "message": "I want a 4 week program for muscle gain", "expected_route": "fitness"}
+{"case_id": "route-003", "message": "give me a leg day routine", "expected_route": "fitness"}
+{"case_id": "route-004", "message": "how many sets of squats should I do", "expected_route": "fitness"}
+{"case_id": "route-005", "message": "Swap bench press for something easier on my shoulder", "expected_route": "fitness"}
+{"case_id": "route-006", "message": "whats a good beginner gym routine", "expected_route": "fitness"}
+{"case_id": "route-007", "message": "I only have dumbbells, what exercises can I do", "expected_route": "fitness"}
+{"case_id": "route-008", "message": "how do i progress my deadlift", "expected_route": "fitness"}
+{"case_id": "route-009", "message": "create a push pull legs split", "expected_route": "fitness"}
+{"case_id": "route-010", "message": "how often should I train per week", "expected_route": "fitness"}
+{"case_id": "route-011", "message": "bild me a wrokout plan", "expected_route": "fitness"}
+{"case_id": "route-012", "message": "home workout no equipment", "expected_route": "fitness"}
+{"case_id": "route-013", "message": "best exercises for biceps", "expected_route": "fitness"}
+{"case_id": "route-014", "message": "how many rest days do I need", "expected_route": "fitness"}
+{"case_id": "route-015", "message": "I have bad knees, which exercises should I avoid", "expected_route": "fitness"}
+{"case_id": "route-016", "message": "should I increase weights next week", "expected_route": "fitness"}
+{"case_id": "route-017", "message": "full body routine 3 days a week", "expected_route": "fitness"}
+{"case_id": "route-018", "message": "what is progressive overload", "expected_route": "fitness"}
+{"case_id": "route-019", "message": "show my training program", "expected_route": "fitness"}
+{"case_id": "route-020", "message": "alternative to pull ups", "expected_route": "fitness"}
+{"case_id": "route-021", "message": "I want to get stronger at squats", "expected_route": "fitness"}
+{"case_id": "route-022", "message": "Make my plan harder", "expected_route": "fitness"}
+{"case_id": "route-023", "message": "chest and triceps workout", "expected_route": "fitness"}
+{"case_id": "route-024", "message": "how long should I rest between sets", "expected_route": "fitness"}
+{"case_id": "route-025", "message": "workout", "expected_route": "fitness"}
+{"case_id": "route-026", "message": "How much protein should I eat per day", "expected_route": "nutrition"}
+{"case_id": "route-027", "message": "what should I eat before a workout", "expected_route": "nutrition"}
+{"case_id": "route-028", "message": "give me a high protein vegetarian meal idea", "expected_route": "nutrition"}
+{"case_id": "route-029", "message": "how many calories do I need to lose weight", "expected_route": "nutrition"}
+{"case_id": "route-030", "message": "is creatine safe", "expected_route": "nutrition"}
+{"case_id": "route-031", "message": "what are good sources of fiber", "expected_route": "nutrition"}
+{"case_id": "route-032", "message": "Should I eat carbs at night", "expected_route": "nutrition"}
+{"case_id": "route-033", "message": "how much water should I drink daily", "expected_route": "nutrition"}
+{"case_id": "route-034", "message": "meal plan for 2000 calories", "expected_route": "nutrition"}
+{"case_id": "route-035", "message": "whats a healthy breakfast", "expected_route": "nutrition"}
+{"case_id": "route-036", "message": "is intermittent fasting good", "expected_route": "nutrition"}
+{"case_id": "route-037", "message": "how to cut sugar from my diet", "expected_route": "nutrition"}
+{"case_id": "route-038", "message": "best foods for iron", "expected_route": "nutrition"}
+{"case_id": "route-039", "message": "how many grams of fat per day", "expected_route": "nutrition"}
+{"case_id": "route-040", "message": "what vitamin d dose is normal", "expected_route": "nutrition"}
+{"case_id": "route-041", "message": "plan my meals for the week", "expected_route": "nutrition"}
+{"case_id": "route-042", "message": "Is whey protein better than plant protein", "expected_route": "nutrition"}
+{"case_id": "route-043", "message": "what are my maintenance calories", "expected_route": "nutrition"}
+{"case_id": "route-044", "message": "low carb diet pros and cons", "expected_route": "nutrition"}
+{"case_id": "route-045", "message": "protien intake for muscle gain", "expected_route": "nutrition"}
+{"case_id": "route-046", "message": "healthy snacks under 200 calories", "expected_route": "nutrition"}
+{"case_id": "route-047", "message": "how much sodium is too much", "expected_route": "nutrition"}
+{"case_id": "route-048", "message": "calories in rice", "expected_route": "nutrition"}
+{"case_id": "route-049", "message": "what to eat to gain weight", "expected_route": "nutrition"}
+{"case_id": "route-050", "message": "Can I eat eggs everyday", "expected_route": "nutrition"}
+{"case_id": "route-051", "message": "diet", "expected_route": "nutrition"}
+{"case_id": "route-052", "message": "macros for fat loss", "expected_route": "nutrition"}
+{"case_id": "route-053", "message": "Build me a workout plan and a meal plan", "expected_route": "mixed"}
+{"case_id": "route-054", "message": "I want to lose fat: give me a training program and what to eat", "expected_route": "mixed"}
+{"case_id": "route-055", "message": "how much protein for my workout routine of 4 days a week", "expected_route": "mixed"}
+{"case_id": "route-056", "message": "plan my training and diet for muscle gain", "expected_route": "mixed"}
+{"case_id": "route-057", "message": "What should I eat on leg day and which exercises should I do", "expected_route": "mixed"}
+{"case_id": "route-058", "message": "Make a 4 week program and tell me my calories", "expected_route": "mixed"}
+{"case_id": "route-059", "message": "workout and diet plan for beginners", "expected_route": "mixed"}
+{"case_id": "route-060", "message": "I lift 5 days a week, how many calories should I eat and should I change my split", "expected_route": "mixed"}
+{"case_id": "route-061", "message": "need gym routine plus meal suggestions", "expected_route": "mixed"}
+{"case_id": "route-062", "message": "cutting plan: exercises and nutrition", "expected_route": "mixed"}
+{"case_id": "route-063", "message": "bulk plan with training schedule and daily protein", "expected_route": "mixed"}
+{"case_id": "route-064", "message": "give me a wrokout plan and diet chart", "expected_route": "mixed"}
+{"case_id": "route-065", "message": "what exercises and foods help me lose belly fat", "expected_route": "mixed"}
+{"case_id": "route-066", "message": "Create a routine and tell me what to eat after it", "expected_route": "mixed"}
+{"case_id": "route-067", "message": "Help me with my training and my nutrition", "expected_route": "mixed"}
+{"case_id": "route-068", "message": "fitness and nutrition plan for 12 weeks", "expected_route": "mixed"}
+{"case_id": "route-069", "message": "squat progression and a high calorie meal plan", "expected_route": "mixed"}
+{"case_id": "route-070", "message": "how should I train and eat to build muscle", "expected_route": "mixed"}
+{"case_id": "route-071", "message": "Workout schedule + meal prep ideas", "expected_route": "mixed"}
+{"case_id": "route-072", "message": "I want abs: what workouts and what diet", "expected_route": "mixed"}
+{"case_id": "route-073", "message": "runner training plan with fueling advice", "expected_route": "mixed"}
+{"case_id": "route-074", "message": "Plan my gym days and my protein intake", "expected_route": "mixed"}
+{"case_id": "route-075", "message": "exercise and diet for weight loss", "expected_route": "mixed"}
+{"case_id": "route-076", "message": "what to eat and how to train for strength", "expected_route": "mixed"}
+{"case_id": "route-077", "message": "home workout and calorie target", "expected_route": "mixed"}
+{"case_id": "route-078", "message": "hi", "expected_route": "clarify"}
+{"case_id": "route-079", "message": "help", "expected_route": "clarify"}
+{"case_id": "route-080", "message": "what should I do", "expected_route": "clarify"}
+{"case_id": "route-081", "message": "can you help me", "expected_route": "clarify"}
+{"case_id": "route-082", "message": "I need advice", "expected_route": "clarify"}
+{"case_id": "route-083", "message": "?", "expected_route": "clarify"}
+{"case_id": "route-084", "message": "tell me something", "expected_route": "clarify"}
+{"case_id": "route-085", "message": "ok", "expected_route": "clarify"}
+{"case_id": "route-086", "message": "how do I start", "expected_route": "clarify"}
+{"case_id": "route-087", "message": "what's the weather today", "expected_route": "clarify"}
+{"case_id": "route-088", "message": "who won the match yesterday", "expected_route": "clarify"}
+{"case_id": "route-089", "message": "write a poem", "expected_route": "clarify"}
+{"case_id": "route-090", "message": "what is the capital of France", "expected_route": "clarify"}
+{"case_id": "route-091", "message": "translate hello to Spanish", "expected_route": "clarify"}
+{"case_id": "route-092", "message": "Can you book a flight", "expected_route": "clarify"}
+{"case_id": "route-093", "message": "I feel stuck", "expected_route": "clarify"}
+{"case_id": "route-094", "message": "what do you think", "expected_route": "clarify"}
+{"case_id": "route-095", "message": "make it better", "expected_route": "clarify"}
+{"case_id": "route-096", "message": "yes", "expected_route": "clarify"}
+{"case_id": "route-097", "message": "thanks", "expected_route": "clarify"}
+{"case_id": "route-098", "message": "how are you", "expected_route": "clarify"}
+{"case_id": "route-099", "message": "asdfgh", "expected_route": "clarify"}
+{"case_id": "route-100", "message": "Tell me about Python", "expected_route": "clarify"}
+{"case_id": "route-101", "message": "recommend a movie", "expected_route": "clarify"}
+{"case_id": "route-102", "message": "what time is it", "expected_route": "clarify"}
