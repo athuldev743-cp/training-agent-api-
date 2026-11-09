@@ -1,25 +1,29 @@
-"""Nutrition-only hybrid retrieval: pgvector + PostgreSQL FTS + RRF + reranking.
+"""Nutrition-only hybrid retrieval: pgvector + PostgreSQL FTS + RRF + optional remote reranking.
 
-The nutrition corpus is physically separated from fitness_knowledge.
+The nutrition corpus is physically separated from fitness_knowledge. The cross-encoder
+runs in a separate service so its model memory is not loaded into the main API process.
 """
 from __future__ import annotations
 
+import logging
+import os
 from typing import Any
 
+import httpx
 from fastembed import TextEmbedding
-from fastembed.rerank.cross_encoder import TextCrossEncoder
 
 from rag.neon import get_connection
 
+logger = logging.getLogger(__name__)
+
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
-RERANKER_MODEL = "Xenova/ms-marco-MiniLM-L-6-v2"
 EMBEDDING_DIMENSIONS = 384
 RRF_K = 60
 MAX_LIMIT = 20
 MAX_CANDIDATES = 100
+RERANKER_TIMEOUT_SECONDS = float(os.getenv("NUTRITION_RERANKER_TIMEOUT", "30"))
 
 _embedding_model: TextEmbedding | None = None
-_reranker_model: TextCrossEncoder | None = None
 
 NUTRITION_HYBRID_SQL = """
 WITH semantic AS (
@@ -66,18 +70,41 @@ def _get_embedding_model() -> TextEmbedding:
     return _embedding_model
 
 
-def _get_reranker_model() -> TextCrossEncoder:
-    global _reranker_model
-    if _reranker_model is None:
-        _reranker_model = TextCrossEncoder(model_name=RERANKER_MODEL)
-    return _reranker_model
-
-
 def _vector_literal(values: Any) -> str:
     vector = [float(value) for value in values]
     if len(vector) != EMBEDDING_DIMENSIONS:
         raise ValueError(f"embedding must contain {EMBEDDING_DIMENSIONS} dimensions")
     return "[" + ",".join(format(value, ".8g") for value in vector) + "]"
+
+
+def _remote_rerank_scores(query: str, documents: list[str]) -> list[float] | None:
+    """Return remote cross-encoder scores, or None when reranking is unavailable."""
+    base_url = os.getenv("NUTRITION_RERANKER_URL", "").strip().rstrip("/")
+    api_key = os.getenv("NUTRITION_RERANKER_API_KEY", "").strip()
+    if not base_url or not api_key:
+        return None
+
+    try:
+        response = httpx.post(
+            f"{base_url}/rerank",
+            json={"query": query, "documents": documents},
+            headers={"X-API-Key": api_key},
+            timeout=RERANKER_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        raw_scores = payload.get("scores")
+        if not isinstance(raw_scores, list) or len(raw_scores) != len(documents):
+            raise ValueError("reranker returned an unexpected number of scores")
+        scores = [float(score) for score in raw_scores]
+        if any(not __import__("math").isfinite(score) for score in scores):
+            raise ValueError("reranker returned a non-finite score")
+        return scores
+    except Exception as exc:
+        # RRF remains a valid ranking; an optional remote service must not take
+        # nutrition retrieval offline or expose request text in logs.
+        logger.warning("Nutrition reranker unavailable; using RRF ranking (%s)", type(exc).__name__)
+        return None
 
 
 def search_nutrition(
@@ -87,7 +114,7 @@ def search_nutrition(
     candidate_limit: int = 30,
     rerank: bool = True,
 ) -> list[dict[str, Any]]:
-    """Search only nutrition_knowledge and return ranked source-attributed chunks."""
+    """Search nutrition_knowledge and return source-attributed chunks."""
     if not isinstance(query, str) or not query.strip():
         raise ValueError("query must be a non-empty string")
     if not 1 <= limit <= MAX_LIMIT:
@@ -122,13 +149,10 @@ def search_nutrition(
     ]
 
     if rerank and results:
-        scores = list(_get_reranker_model().rerank(
-            clean_query, [item["content"] for item in results]
-        ))
-        if len(scores) != len(results):
-            raise RuntimeError("Reranker returned an unexpected number of scores")
-        for item, score in zip(results, scores):
-            item["rerank_score"] = float(score)
-        results.sort(key=lambda item: item["rerank_score"], reverse=True)
+        scores = _remote_rerank_scores(clean_query, [item["content"] for item in results])
+        if scores is not None:
+            for item, score in zip(results, scores):
+                item["rerank_score"] = score
+            results.sort(key=lambda item: item["rerank_score"], reverse=True)
 
     return results[:limit]
