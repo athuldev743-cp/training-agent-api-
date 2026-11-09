@@ -154,7 +154,7 @@ def test_saved_profile_is_included_in_nutrition_prompt_and_constraints():
         goal="fat_loss", activity_level="moderately_active",
         dietary_pattern="vegetarian", preferred_foods=["dal", "paneer"],
         excluded_foods=["mushroom"], allergies=["peanut"],
-        intolerances=["lactose"], meals_per_day=4,
+        intolerances=["lactose"], meals_per_day=4, daily_food_budget_inr=250,
     )
     agent = NutritionAgent(llm, retriever=lambda *a, **k: [chunk()])
     result = agent.run(AgentRequest(
@@ -167,7 +167,8 @@ def test_saved_profile_is_included_in_nutrition_prompt_and_constraints():
     for value in ('"goal": "fat_loss"', '"activity_level": "moderately_active"',
                   '"dietary_pattern": "vegetarian"', '"preferred_foods": ["dal", "paneer"]',
                   '"excluded_foods": ["mushroom"]', '"allergies": ["peanut"]',
-                  '"intolerances": ["lactose"]', '"meals_per_day": 4'):
+                  '"intolerances": ["lactose"]', '"meals_per_day": 4',
+                  '"daily_food_budget_inr": 250'):
         assert value in system
     assert "Do not assume personal details" not in system
 
