@@ -22,12 +22,12 @@ from agent.contracts import (
 from agent.interfaces import DomainAgent
 from rag.nutrition_retrieval import search_nutrition
 
-_CITATION = re.compile(r"\\[(S\\d+)\\]")
-_ANY_SOURCE_TAG = re.compile(r"\\[S\\d+\\]")
+_CITATION = re.compile(r"\[(S\d+)\]")
+_ANY_SOURCE_TAG = re.compile(r"\[S\d+\]")
 _PERSONALIZED_REQUEST = re.compile(
-    r"\\b(meal plan|diet plan|meal prep|create|build|design|recommend|suggest|"
-    r"personaliz\\w*|for me|my diet|my nutrition|should i eat|based on my|"
-    r"calorie target|macro target)\\b",
+    r"\b(meal plan|diet plan|meal prep|create|build|design|recommend|suggest|"
+    r"personaliz\w*|for me|my diet|my nutrition|should i eat|based on my|"
+    r"calorie target|macro target)\b",
     re.IGNORECASE,
 )
 MAX_EVIDENCE = 5
