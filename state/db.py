@@ -358,6 +358,7 @@ def migrate(conn: sqlite3.Connection) -> None:
                 "allergies": "TEXT NOT NULL DEFAULT '[]'",
                 "intolerances": "TEXT NOT NULL DEFAULT '[]'",
                 "meals_per_day": "INTEGER NOT NULL DEFAULT 3",
+                "daily_food_budget_inr": "INTEGER",
             }
             for column, declaration in additions.items():
                 if not _has_column(conn, "user_profile", column):
