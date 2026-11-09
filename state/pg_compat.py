@@ -4,7 +4,7 @@ import os
 import re
 from datetime import datetime
 
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 
 
 class Row(tuple):
@@ -31,7 +31,14 @@ def _row_factory(cursor):
 DDL = [
     """CREATE TABLE user_profile (user_id TEXT PRIMARY KEY, name TEXT NOT NULL, age INTEGER, height_cm DOUBLE PRECISION,
        weight_kg DOUBLE PRECISION, goal TEXT NOT NULL, experience TEXT NOT NULL, equipment TEXT, session_minutes INTEGER NOT NULL,
-       limitations TEXT, screening TEXT NOT NULL DEFAULT 'not_asked')""",
+       limitations TEXT, screening TEXT NOT NULL DEFAULT 'not_asked',
+       activity_level TEXT NOT NULL DEFAULT 'unspecified',
+       dietary_pattern TEXT NOT NULL DEFAULT 'unspecified',
+       preferred_foods TEXT NOT NULL DEFAULT '[]',
+       excluded_foods TEXT NOT NULL DEFAULT '[]',
+       allergies TEXT NOT NULL DEFAULT '[]',
+       intolerances TEXT NOT NULL DEFAULT '[]',
+       meals_per_day INTEGER NOT NULL DEFAULT 3)""",
     """CREATE TABLE workouts (id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, user_id TEXT NOT NULL DEFAULT 'local',
        performed_at TEXT NOT NULL, duration_min INTEGER)""",
     """CREATE TABLE set_logs (id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -172,6 +179,16 @@ def _open_schema():
         if raw.execute("SELECT to_regclass('schema_migrations')").fetchone()[0] is None:
             apply_schema(raw)
         version = raw.execute("SELECT max(version) FROM schema_migrations").fetchone()[0]
+        if version < 10:
+            raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS activity_level TEXT NOT NULL DEFAULT 'unspecified'")
+            raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS dietary_pattern TEXT NOT NULL DEFAULT 'unspecified'")
+            raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS preferred_foods TEXT NOT NULL DEFAULT '[]'")
+            raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS excluded_foods TEXT NOT NULL DEFAULT '[]'")
+            raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS allergies TEXT NOT NULL DEFAULT '[]'")
+            raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS intolerances TEXT NOT NULL DEFAULT '[]'")
+            raw.execute("ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS meals_per_day INTEGER NOT NULL DEFAULT 3")
+            raw.execute("INSERT INTO schema_migrations (version, applied_at) VALUES (%s, %s)", (10, datetime.now().isoformat(timespec="seconds")))
+            version = 10
         raw.execute("SELECT pg_advisory_unlock(727)")
         if version != SCHEMA_VERSION:
             raise RuntimeError(f"database schema version {version} does not match code version {SCHEMA_VERSION}")
