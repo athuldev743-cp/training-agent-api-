@@ -67,9 +67,14 @@ def _is_heading(line: str) -> bool:
     return bool(
         4 <= len(stripped) <= 90
         and letters
-        and all(char == char.upper() for char in letters)
-        and re.fullmatch(r"[A-Z0-9 ,:&()/\-]+", stripped)
+        and (
+            all(char == char.upper() for char in letters)
+            or (stripped == stripped.title() and " " in stripped)
+        )
+        and re.fullmatch(r"[A-Za-z0-9 ,:&()/\\-]+", stripped)
     )
+
+
 MOJIBAKE_MARKERS = ("â€“", "â€”", "â€™", "â€œ", "â€", "Ã", "Â", "\ufffd")
 BULLET_TRANSLATION = str.maketrans({
     "\x01": "• ", "\x02": "• ", "\uf0b7": "• ", "\u2022": "• ",
@@ -211,18 +216,22 @@ def _split_oversized_unit(unit: str, limit: int = MAX_CHARS) -> list[str]:
         return [unit]
     lines = unit.splitlines()
     if len(lines) > 1 and all(_is_table_row(line) for line in lines[1:]):
-        heading = lines[0]
-        rows = lines[1:]
+        # Repeat both the section title and column header when splitting a long table.
+        prefix = [lines[0]]
+        row_start = 1
+        if not _is_table_row(lines[0]) and len(lines) > 2:
+            prefix.append(lines[1])
+            row_start = 2
         groups: list[str] = []
-        current = [heading]
-        for row in rows:
-            if sum(map(len, current)) + len(row) + 1 > limit and len(current) > 1:
-                groups.append("\n".join(current))
-                current = [heading, row]
-            else:
-                current.append(row)
+        current = list(prefix)
+        for row in lines[row_start:]:
+            current_size = sum(map(len, current)) + max(0, len(current) - 1)
+            if current_size + len(row) + 1 > limit and len(current) > len(prefix):
+                groups.append("\\n".join(current))
+                current = list(prefix)
+            current.append(row)
         if current:
-            groups.append("\n".join(current))
+            groups.append("\\n".join(current))
         return groups
 
     sentences = re.split(r"(?<=[.!?])\s+", unit)
