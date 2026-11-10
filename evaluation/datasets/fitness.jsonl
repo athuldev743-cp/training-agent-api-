@@ -1,0 +1,41 @@
+{"case_id": "fit-001", "query": "how much exercise should adults do per week", "relevant_chunk_ids": ["2131", "1966", "2034", "1957"]}
+{"case_id": "fit-002", "query": "physical activity recommendations for older adults", "relevant_chunk_ids": ["2180", "2038", "1970"]}
+{"case_id": "fit-003", "query": "resistance training frequency for muscle growth", "relevant_chunk_ids": ["169", "170", "179"]}
+{"case_id": "fit-004", "query": "how many sets per muscle group per week", "relevant_chunk_ids": ["168", "169", "77"]}
+{"case_id": "fit-005", "query": "rep ranges for hypertrophy versus strength", "relevant_chunk_ids": ["168", "76"]}
+{"case_id": "fit-007", "query": "progressive overload principles", "relevant_chunk_ids": ["65"]}
+{"case_id": "fit-008", "query": "what is autoregulation in resistance training", "relevant_chunk_ids": ["4022", "3990", "3974", "3973", "3991"]}
+{"case_id": "fit-009", "query": "rate of force development and training", "relevant_chunk_ids": ["3262", "3318", "3252"]}
+{"case_id": "fit-010", "query": "eccentric training benefits and risks", "relevant_chunk_ids": ["3821", "3769", "3838", "3839", "3819"]}
+{"case_id": "fit-011", "query": "overhead pressing exercise variations", "relevant_chunk_ids": ["3856", "3887", "3849"]}
+{"case_id": "fit-012", "query": "plyometric training for jump performance", "relevant_chunk_ids": ["2835", "2702", "2533", "2826"]}
+{"case_id": "fit-013", "query": "plyometrics for adolescent athletes", "relevant_chunk_ids": ["2946", "2944", "2942"]}
+{"case_id": "fit-014", "query": "unilateral versus bilateral training", "relevant_chunk_ids": ["3045", "3043", "2997", "3048"]}
+{"case_id": "fit-015", "query": "weightlifting versus traditional resistance training", "relevant_chunk_ids": ["4073", "4071"]}
+{"case_id": "fit-016", "query": "high intensity functional training effects", "relevant_chunk_ids": ["2489", "2609", "2490"]}
+{"case_id": "fit-017", "query": "CrossFit injury risk and demands", "relevant_chunk_ids": ["3426", "3132", "3393", "3425", "3415"]}
+{"case_id": "fit-018", "query": "muscle strength recovery after acute exercise", "relevant_chunk_ids": ["2933", "2887", "2889"]}
+{"case_id": "fit-019", "query": "cold water immersion and recovery", "relevant_chunk_ids": ["2875", "2885", "2887", "2836"]}
+{"case_id": "fit-020", "query": "hot water immersion after exercise", "relevant_chunk_ids": ["2836", "2861"]}
+{"case_id": "fit-021", "query": "tendon adaptation to loading", "relevant_chunk_ids": ["3233", "3234", "3201", "3203"]}
+{"case_id": "fit-022", "query": "attentional focus cues during lifting", "relevant_chunk_ids": ["4060", "4026", "4025"]}
+{"case_id": "fit-023", "query": "strength and speed training combined programs", "relevant_chunk_ids": ["2782", "2780"]}
+{"case_id": "fit-024", "query": "muscle protein and sports nutrition position", "relevant_chunk_ids": ["3516", "3525", "3508"]}
+{"case_id": "fit-025", "query": "resistance training safety for older adults", "relevant_chunk_ids": ["73", "156", "142"]}
+{"case_id": "fit-026", "query": "balance and falls prevention exercise", "relevant_chunk_ids": ["224", "238", "225", "2189"]}
+{"case_id": "fit-027", "query": "physical activity guidelines for children", "relevant_chunk_ids": ["1963", "2031"]}
+{"case_id": "fit-028", "query": "sedentary behaviour and health risk", "relevant_chunk_ids": ["2171", "2170", "2168"]}
+{"case_id": "fit-029", "query": "aerobic exercise intensity recommendations", "relevant_chunk_ids": ["2037", "2131"]}
+{"case_id": "fit-030", "query": "exercise for people with chronic conditions", "relevant_chunk_ids": ["2049", "1980", "2048"]}
+{"case_id": "fit-034", "query": "exercise and bone health", "relevant_chunk_ids": ["2186"]}
+{"case_id": "fit-035", "query": "muscle strengthening activity twice a week", "relevant_chunk_ids": ["1992", "2180", "2035", "2060"]}
+{"case_id": "fit-036", "query": "exercise during pregnancy and postpartum", "relevant_chunk_ids": ["2192", "2196", "2195"]}
+{"case_id": "fit-037", "query": "exercise for adults with disability", "relevant_chunk_ids": ["2241", "2245", "2058"]}
+{"case_id": "fit-038", "query": "high intensity interval training benefits", "relevant_chunk_ids": ["467", "2115"]}
+{"case_id": "fit-039", "query": "power training for older adults", "relevant_chunk_ids": ["184", "236"]}
+{"case_id": "fit-040", "query": "load selection percentage of one rep max", "relevant_chunk_ids": ["186"]}
+{"case_id": "fit-042", "query": "overtraining and fatigue management", "relevant_chunk_ids": ["3162", "3166", "3189"]}
+{"case_id": "fit-043", "query": "sleep recovery and performance", "relevant_chunk_ids": ["2878", "3188"]}
+{"case_id": "fit-044", "query": "speed and sprint training methods", "relevant_chunk_ids": ["2780", "2782", "2766"]}
+{"case_id": "fit-046", "query": "exercise dose and mortality reduction", "relevant_chunk_ids": ["2144", "2145", "2148"]}
+{"case_id": "fit-048", "query": "youth resistance training guidelines", "relevant_chunk_ids": ["654"]}
