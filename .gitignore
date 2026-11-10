@@ -8,3 +8,9 @@ __pycache__/
 .coverage
 artifacts/
 *.egg-info/
+venv/
+coverage.xml
+build/
+.pytest_cache/
+.hypothesis/
+nutrition_sources/
