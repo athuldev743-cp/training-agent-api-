@@ -123,6 +123,26 @@ def _remote_rerank_scores(query: str, documents: list[str]) -> list[float] | Non
         return None
 
 
+def _local_rerank_scores(query: str, documents: list[str]) -> list[float] | None:
+    """Score with the fitness cross-encoder already loaded in this process (shared, lazy)."""
+    try:
+        from rag.hybrid import _get_reranker_model
+        scores = [float(score) for score in _get_reranker_model().rerank(query, documents)]
+        if len(scores) != len(documents) or any(not math.isfinite(s) for s in scores):
+            raise ValueError("local reranker returned invalid scores")
+        return scores
+    except Exception as exc:
+        logger.warning("Local nutrition reranker unavailable; using RRF ranking (%s)", type(exc).__name__)
+        return None
+
+
+def _rerank_scores(query: str, documents: list[str]) -> list[float] | None:
+    """NUTRITION_RERANKER_MODE=local uses the in-process model; anything else keeps the remote service."""
+    if os.getenv("NUTRITION_RERANKER_MODE", "remote").strip().lower() == "local":
+        return _local_rerank_scores(query, documents)
+    return _remote_rerank_scores(query, documents)
+
+
 def search_nutrition(
     query: str,
     *,
@@ -166,7 +186,7 @@ def search_nutrition(
     ]
 
     if rerank and results:
-        scores = _remote_rerank_scores(clean_query, [item["content"] for item in results])
+        scores = _rerank_scores(clean_query, [item["content"] for item in results])
         if scores is None:
             for item in results:
                 item["rerank_status"] = "fallback_rrf"
