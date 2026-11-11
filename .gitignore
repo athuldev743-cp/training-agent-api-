@@ -4,3 +4,13 @@
 *.db
 __pycache__/
 .venv/
+
+.coverage
+artifacts/
+*.egg-info/
+venv/
+coverage.xml
+build/
+.pytest_cache/
+.hypothesis/
+nutrition_sources/

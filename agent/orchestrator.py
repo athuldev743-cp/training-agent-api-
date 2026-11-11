@@ -14,17 +14,23 @@ from agent.contracts import AgentName, AgentRequest, AgentResult, AgentStatus
 from agent.interfaces import DomainAgent
 
 _NUTRITION = re.compile(
-    r"\b(nutrition|diet|dietary|food|foods|meal|meals|calorie|calories|"
-    r"protein|carbohydrate|carbs|fat intake|macros|hydration|water intake)\b",
+    r"\b(nutrition|nutritional|diet|dietary|food|foods|meal|meals|calorie|calories|"
+    r"protein|protien|carbohydrate|carbohydrates|carbs|macros|hydration|water|"
+    r"eat|eating|breakfast|lunch|dinner|snack|snacks|fiber|fibre|sodium|vitamin|vitamins|"
+    r"supplement|supplements|creatine|whey|fasting|sugar|fuel|fueling|drink)\b|"
+    r"\bfat\s+(?:intake|loss)\b|\b(?:lose|gain)\s+weight\b|\bweight\s+loss\b|"
+    r"\bgrams\s+of\s+(?:fat|protein|carbs)\b",
     re.IGNORECASE,
 )
 _FITNESS = re.compile(
-    r"\b(workout|workouts|exercise|exercises|training|train|gym|muscle|"
-    r"sets|reps|routine|programme|program|progression|strength|cardio)\b|"
+    r"\b(workout|workouts|wrokout|exercise|exercises|training|train|gym|muscle|"
+    r"sets|reps|routine|programme|program|progression|strength|stronger|cardio|"
+    r"deadlift|deadlifts|squat|squats|bench|curl|curls|lift|lifting|lifts|split|"
+    r"weights|dumbbell|dumbbells|barbell|biceps|triceps|chest|legs|glutes|abs|"
+    r"pull[\s-]?ups?|push[\s-]?ups?|rest\s+days?)\b|"
     r"\bprogressive\s+overload\b|\bweightlifting\b|\bresistance\s+training\b",
     re.IGNORECASE,
 )
-
 
 class OrchestrationState(TypedDict, total=False):
     request: AgentRequest
