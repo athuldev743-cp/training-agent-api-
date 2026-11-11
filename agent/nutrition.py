@@ -30,6 +30,25 @@ _PERSONALIZED_REQUEST = re.compile(
     r"calorie target|macro target)\b",
     re.IGNORECASE,
 )
+_GROUPED_CITATION = re.compile(r"\[(S\d+(?:\s*[,;]\s*S\d+)+)\]")
+_INSUFFICIENT = re.compile(
+    r"(do(?:es)? not contain|don't contain|no (?:relevant )?information|not enough information|insufficient)",
+    re.IGNORECASE,
+)
+
+
+def _expand_grouped_citations(answer: str) -> str:
+    """Rewrite [S1, S3] as [S1][S3] so grouped labels are validated like single labels."""
+    return _GROUPED_CITATION.sub(
+        lambda m: "".join(f"[{label}]" for label in re.findall(r"S\d+", m.group(1))), answer
+    )
+
+
+def _is_insufficient_evidence(answer: str) -> bool:
+    """A short, number-free statement that the sources do not answer the question."""
+    return len(answer) <= 400 and not re.search(r"\d", answer) and bool(_INSUFFICIENT.search(answer))
+
+
 MAX_EVIDENCE = 5
 MAX_CONTEXT_CHARS = 9000
 MAX_CITATION_ATTEMPTS = 2
@@ -206,6 +225,7 @@ class NutritionAgent:
                     },
                 )
 
+            answer = _expand_grouped_citations(answer)
             cited = set(_CITATION.findall(answer))
             observed = set(_ANY_SOURCE_TAG.findall(answer))
             allowed_tags = {f"[{item}]" for item in allowed}
@@ -226,6 +246,12 @@ class NutritionAgent:
                     for i, item in enumerate(evidence, start=1)
                 ],
             }
+            if not observed and _is_insufficient_evidence(answer):
+                last_diagnostic["citation_validation"] = "insufficient_evidence"
+                last_diagnostic["failure_type"] = None
+                return self._result(
+                    request, AgentStatus.REFUSED, answer, evidence=[], metadata=last_diagnostic,
+                )
             if valid:
                 return self._result(
                     request, AgentStatus.OK, answer, evidence=evidence,
