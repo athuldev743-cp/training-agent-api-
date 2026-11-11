@@ -34,8 +34,7 @@ jobs:
       - name: Install application and ingestion test dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[ingestion]"
-          python -m pip install pytest
+          python -m pip install -e ".[ingestion,test]"
 
       - name: Compile application packages
         run: python -m compileall -q agent api engine rag state nutrition_ingestion services evaluation scripts
@@ -48,7 +47,7 @@ jobs:
       - name: Run tests
         run: |
           mkdir -p artifacts/module-4 artifacts/module-5 artifacts/module-7
-          python -m pytest -q --junitxml=artifacts/module-7/pytest-junit.xml
+          python -m pytest -q --junitxml=artifacts/module-7/pytest-junit.xml --cov=agent --cov=api --cov=engine --cov=rag --cov=state --cov=nutrition_ingestion --cov=services --cov=evaluation --cov-report=term-missing:skip-covered --cov-report=xml:artifacts/module-7/coverage.xml
           cp artifacts/module-7/pytest-junit.xml artifacts/module-4/pytest-junit.xml
           cp artifacts/module-7/pytest-junit.xml artifacts/module-5/pytest-junit.xml
 

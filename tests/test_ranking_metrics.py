@@ -6,7 +6,8 @@ from evaluation.ranking import mean_metrics, ranking_metrics
 def test_perfect_ranking_has_all_metrics_at_one():
     metrics = ranking_metrics(["a", "b", "c"], ["a", "b"], k=3)
     assert metrics == {
-        "precision_at_k": pytest.approx(2 / 3),
+        "hit_at_k": pytest.approx(1.0),
+            "precision_at_k": pytest.approx(2 / 3),
         "recall_at_k": pytest.approx(1.0),
         "mrr_at_k": pytest.approx(1.0),
         "ndcg_at_k": pytest.approx(1.0),
@@ -47,3 +48,9 @@ def test_empty_relevance_set_is_rejected():
 def test_mean_metrics_rejects_empty_input():
     with pytest.raises(ValueError, match="empty"):
         mean_metrics([])
+
+def test_hit_at_k_is_binary_per_query():
+    from evaluation.ranking import ranking_metrics
+    assert ranking_metrics(["a", "b", "c"], ["c"], k=3)["hit_at_k"] == 1.0
+    assert ranking_metrics(["a", "b", "c"], ["c"], k=2)["hit_at_k"] == 0.0
+    assert ranking_metrics([], ["x"], k=5)["hit_at_k"] == 0.0
