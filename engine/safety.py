@@ -97,3 +97,14 @@ _MAX_EFFORT += [
     r"\b(max|maximal|maximum) (lift|attempt|test)\b",
     r"\ball[- ]out (test|session|workout|effort)\b",
 ]
+
+# Prompt-injection and instruction-override phrasings (generic wording, not tied to one test string).
+_BYPASS += [
+    r"\b(ignore|disregard|forget|override|drop|bypass)\b.{0,25}\b(previous|prior|above|earlier|all|any|your)\b.{0,25}\b(instructions?|rules|prompts?|guidelines|warnings|restrictions|safety)\b",
+    r"\b(disregard|ignore|skip|drop)\b.{0,25}\b(screening|health (check|questionnaire|questions)|safety|warnings)\b",
+    r"\b(reveal|print|show|repeat|leak|output|display)\b.{0,25}\b(system (prompt|message|instructions?)|hidden instructions?|your (prompt|instructions))\b",
+    r"\byou are now\b.{0,40}\b(dan|unrestricted|jailbroken|no restrictions|no rules)\b",
+    r"\b(act|behave|pretend)\b.{0,25}\b(unrestricted|no (safety )?(limits|restrictions|rules)|without (any )?(restrictions|limits|rules))\b",
+    r"\bdeveloper mode\b",
+    r"\b(treat|consider) me as\b.{0,20}\b(cleared|medically cleared)\b",
+]
