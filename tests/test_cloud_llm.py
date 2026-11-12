@@ -118,3 +118,45 @@ def test_provider_failure_is_logged_without_secrets_or_prompt(caplog):
     assert "RuntimeError" in log
     assert "secret-groq-test" not in log
     assert "private test prompt" not in log
+
+def test_http_429_then_openrouter_503_falls_through_to_second_groq():
+    import urllib.error
+
+    calls = []
+
+    def post(url, key, body, timeout):
+        model = body["model"]
+        calls.append(model)
+
+        if model == MODEL_REGISTRY[0]["model"]:
+            raise urllib.error.HTTPError(
+                url, 429, "Too Many Requests", None, None
+            )
+
+        if model == MODEL_REGISTRY[1]["model"]:
+            raise urllib.error.HTTPError(
+                url, 503, "Service Unavailable", None, None
+            )
+
+        return _reply("success from final Groq model")
+
+    llm = CloudOnlyLLM(
+        post=post,
+        env={
+            "GROQ_API_KEY": "groq-test",
+            "OPENROUTER_API_KEY": "openrouter-test",
+        },
+    )
+
+    result = llm.create_chat_completion(
+        messages=[{"role": "user", "content": "Explain protein"}]
+    )
+
+    assert calls == [config["model"] for config in MODEL_REGISTRY]
+    assert result["choices"][0]["message"]["content"] == (
+        "success from final Groq model"
+    )
+    assert llm.last["provider"] == MODEL_REGISTRY[2]["provider"]
+    assert llm.last["model"] == MODEL_REGISTRY[2]["model"]
+    assert llm.skip_until[MODEL_REGISTRY[0]["name"]] > 0
+    assert llm.skip_until[MODEL_REGISTRY[1]["name"]] > 0

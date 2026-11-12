@@ -136,45 +136,60 @@ class HybridLLM:
         )
 
     def _request_cloud(self, messages, kw, want_json=False):
-        """
-        Execute the ordered model chain.
-
-        Returns:
-            (result, config) on success
-            (None, None) if no model succeeds
-        """
+        """Execute every eligible model in registry priority order."""
 
         started = self.clock()
+        attempted = 0
+        skipped = 0
 
         requested_tokens = kw.get("max_tokens", 160)
-
-        max_tokens = min(
-            800,
-            max(400, 4 * requested_tokens),
-        )
+        max_tokens = min(800, max(400, 4 * requested_tokens))
 
         for config in MODEL_REGISTRY:
             model_name = config["name"]
             provider = config["provider"]
-
             api_key = self.env.get(config["key_env"])
 
             if not api_key:
+                skipped += 1
+                logger.warning(
+                    "Cloud LLM model skipped provider=%s model=%s reason=missing_api_key",
+                    provider, config["model"],
+                )
                 continue
 
             now = self.clock()
+            model_remaining = self.skip_until.get(model_name, 0) - now
 
-            # Skip a model that recently failed.
-            if now < self.skip_until.get(model_name, 0):
+            if model_remaining > 0:
+                skipped += 1
+                logger.info(
+                    "Cloud LLM model skipped provider=%s model=%s "
+                    "reason=model_cooldown remaining_s=%s",
+                    provider, config["model"], round(model_remaining, 1),
+                )
                 continue
 
-            # Skip all models belonging to an unavailable provider.
-            if now < self.provider_skip_until.get(provider, 0):
+            provider_remaining = self.provider_skip_until.get(provider, 0) - now
+
+            if provider_remaining > 0:
+                skipped += 1
+                logger.info(
+                    "Cloud LLM model skipped provider=%s model=%s "
+                    "reason=provider_cooldown remaining_s=%s",
+                    provider, config["model"], round(provider_remaining, 1),
+                )
                 continue
 
             remaining = self.deadline - (now - started)
 
             if remaining <= 0.5:
+                skipped += 1
+                logger.warning(
+                    "Cloud LLM chain deadline reached before provider=%s "
+                    "model=%s attempted=%s skipped=%s",
+                    provider, config["model"], attempted, skipped,
+                )
                 break
 
             model_timeout = min(
@@ -191,16 +206,19 @@ class HybridLLM:
             }
 
             if want_json:
-                body["response_format"] = {
-                    "type": "json_object"
-                }
+                body["response_format"] = {"type": "json_object"}
+
+            attempted += 1
+            logger.info(
+                "Cloud LLM attempting provider=%s model=%s "
+                "timeout_s=%s remaining_s=%s",
+                provider, config["model"],
+                round(model_timeout, 2), round(remaining, 2),
+            )
 
             try:
                 data = self._post(
-                    config["url"],
-                    api_key,
-                    body,
-                    model_timeout,
+                    config["url"], api_key, body, model_timeout
                 )
 
                 choice = data["choices"][0]
@@ -208,25 +226,28 @@ class HybridLLM:
 
                 if choice.get("finish_reason") == "length":
                     self._fail(model_name, "truncated")
+                    logger.warning(
+                        "Cloud LLM rejected provider=%s model=%s reason=truncated",
+                        provider, config["model"],
+                    )
                     continue
 
                 if not isinstance(content, str) or not content.strip():
                     self._fail(model_name, "empty_response")
+                    logger.warning(
+                        "Cloud LLM rejected provider=%s model=%s reason=empty_response",
+                        provider, config["model"],
+                    )
                     continue
 
                 content = content.strip()
 
-                # Validate structured responses before accepting them.
                 if want_json:
                     json.loads(content)
 
                 result = {
                     "choices": [
-                        {
-                            "message": {
-                                "content": content
-                            }
-                        }
+                        {"message": {"content": content}}
                     ],
                     "usage": data.get("usage") or {},
                 }
@@ -236,10 +257,21 @@ class HybridLLM:
                     "model": config["model"],
                 }
 
+                logger.info(
+                    "Cloud LLM model succeeded provider=%s model=%s "
+                    "elapsed_ms=%s attempted=%s",
+                    provider, config["model"],
+                    int((self.clock() - started) * 1000), attempted,
+                )
+
                 return result, config
 
             except json.JSONDecodeError:
                 self._fail(model_name, "bad_json")
+                logger.warning(
+                    "Cloud LLM rejected provider=%s model=%s reason=bad_json",
+                    provider, config["model"],
+                )
 
             except Exception as exc:
                 status = getattr(exc, "code", None)
@@ -256,30 +288,29 @@ class HybridLLM:
 
                 if status in (401, 403):
                     self._fail(model_name, f"http_{status}")
-                    self._provider_failed(
-                        provider,
-                        f"http_{status}",
-                    )
+                    self._provider_failed(provider, f"http_{status}")
 
                 elif status == 429:
                     self._fail(
-                        model_name,
-                        "http_429",
+                        model_name, "http_429",
                         self.RATE_LIMIT_COOLDOWN_S,
                     )
 
                 elif isinstance(status, int) and status >= 500:
                     self._fail(
-                        model_name,
-                        f"http_{status}",
+                        model_name, f"http_{status}",
                         self.SERVER_ERROR_COOLDOWN_S,
                     )
 
                 else:
-                    self._fail(
-                        model_name,
-                        type(exc).__name__,
-                    )
+                    self._fail(model_name, type(exc).__name__)
+
+        logger.warning(
+            "Cloud LLM chain exhausted attempted=%s skipped=%s "
+            "elapsed_ms=%s",
+            attempted, skipped,
+            int((self.clock() - started) * 1000),
+        )
 
         return None, None
 
