@@ -24,11 +24,6 @@ def test_resume_evaluation_requires_configured_secret():
 def test_static_resume_evaluation_is_secret_gated_and_read_only(monkeypatch):
     monkeypatch.setenv("EVALUATION_API_KEY", SECRET)
     monkeypatch.setattr(
-        routes,
-        "require_evaluation_key",
-        lambda: None,
-    )
-    monkeypatch.setattr(
         metrics,
         "run_static_resume_evaluations",
         lambda: {
