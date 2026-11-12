@@ -40,6 +40,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=ROOT / "artifacts/evaluation/live-resume-metrics.json")
     parser.add_argument("--timeout", type=float, default=240.0)
     parser.add_argument("--skip-retrieval", action="store_true")
+    parser.add_argument("--interactive-review", action="store_true", help="hand-review nutrition citations and factual support")
     args = parser.parse_args()
 
     key = os.getenv("EVALUATION_API_KEY", "").strip()
@@ -86,8 +87,40 @@ def main() -> int:
             nutrition_rows.append(row)
             print(f"  [{index + 1}/{total_nutrition}] {row.get('case_id', index)}: {row.get('status')}")
 
+    if args.interactive_review:
+        for row in nutrition_rows:
+            if row.get("status") != "ok":
+                continue
+            print("\\n" + "=" * 72)
+            print(f"Human review: {row.get('case_id')}")
+            print(row.get("answer", ""))
+            for evidence in row.get("evidence_excerpts", []):
+                print(
+                    f"\\n{evidence.get('source')} | page={evidence.get('page')} "
+                    f"| chunk={evidence.get('chunk_number')}\\n{evidence.get('quote', '')}"
+                )
+
+            def ask_review(label: str):
+                while True:
+                    answer = input(f"{label} [y/n/s=skip]: ").strip().lower()
+                    if answer in ("y", "yes"):
+                        return True
+                    if answer in ("n", "no"):
+                        return False
+                    if answer in ("s", "skip", ""):
+                        return None
+
+            row["human_citation_valid"] = ask_review(
+                "Does every factual claim have a valid citation to one of the displayed sources?"
+            )
+            row["human_factual_support"] = ask_review(
+                "Do the cited excerpts actually support every material factual claim?"
+            )
+
     valid = sum(bool(row.get("citation_contract_valid")) for row in nutrition_rows)
     refused = sum(bool(row.get("insufficient_evidence_refusal")) for row in nutrition_rows)
+    reviewed_citations = [row["human_citation_valid"] for row in nutrition_rows if row.get("human_citation_valid") is not None]
+    reviewed_support = [row["human_factual_support"] for row in nutrition_rows if row.get("human_factual_support") is not None]
     report["nutrition_grounding"] = {
         "total_requests": len(nutrition_rows),
         "grounded_answer_successes": valid,
@@ -97,7 +130,21 @@ def main() -> int:
         "unavailable_or_invalid": len(nutrition_rows) - valid - refused,
         "per_case": nutrition_rows,
         "manual_factual_support_review_required": True,
-        "hand_checked_citation_validity": None,
+        "human_review": {
+            "citation_cases_reviewed": len(reviewed_citations),
+            "citation_cases_passed": sum(reviewed_citations),
+            "citation_validity_rate": (
+                sum(reviewed_citations) / len(reviewed_citations) if reviewed_citations else None
+            ),
+            "factual_support_cases_reviewed": len(reviewed_support),
+            "factual_support_cases_passed": sum(reviewed_support),
+            "factual_support_rate": (
+                sum(reviewed_support) / len(reviewed_support) if reviewed_support else None
+            ),
+        },
+        "hand_checked_citation_validity": (
+            sum(reviewed_citations) / len(reviewed_citations) if reviewed_citations else None
+        ),
         "note": (
             "Automated success means the NutritionAgent returned OK with valid in-scope "
             "citation labels. This does not prove each factual claim is supported. "
