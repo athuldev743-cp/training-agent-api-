@@ -234,7 +234,6 @@ def evaluate_static_resume_metrics(
     """Run deterministic routing, workout, progression and safety evaluations."""
     from evaluation.resume_metrics import run_static_resume_evaluations
     from pathlib import Path
-    import json
 
     report = run_static_resume_evaluations()
     nutrition_dataset = Path(__file__).resolve().parents[1] / "evaluation" / "datasets" / "nutrition.jsonl"
