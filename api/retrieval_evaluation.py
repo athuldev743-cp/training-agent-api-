@@ -222,3 +222,43 @@ def evaluate_retrieval(
         },
         "candidate_results": candidate_results,
     }
+
+
+
+# Secret-gated comprehensive resume-metric evaluation. Kept on the existing
+# internal router so api/app.py and normal application route registration stay untouched.
+@router.post("/internal/evaluation/resume-metrics/static", include_in_schema=False)
+def evaluate_static_resume_metrics(
+    _authorized: None = Depends(require_evaluation_key),
+):
+    """Run deterministic routing, workout, progression and safety evaluations."""
+    from evaluation.resume_metrics import run_static_resume_evaluations
+    from pathlib import Path
+    import json
+
+    report = run_static_resume_evaluations()
+    nutrition_dataset = Path(__file__).resolve().parents[1] / "evaluation" / "datasets" / "nutrition.jsonl"
+    report["nutrition_grounding_dataset_cases"] = sum(
+        1 for line in nutrition_dataset.read_text(encoding="utf-8").splitlines() if line.strip()
+    )
+    return report
+
+
+@router.post("/internal/evaluation/resume-metrics/nutrition/{case_index}", include_in_schema=False)
+def evaluate_live_nutrition_case(
+    case_index: int,
+    _authorized: None = Depends(require_evaluation_key),
+):
+    """Run one synthetic nutrition query through the live NutritionAgent."""
+    from evaluation.resume_metrics import evaluate_nutrition_case
+
+    try:
+        return evaluate_nutrition_case(case_index)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        # Do not return provider errors, prompt contents, or deployment details.
+        raise HTTPException(
+            status_code=502,
+            detail=f"nutrition evaluation failed ({type(exc).__name__})",
+        ) from exc
