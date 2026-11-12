@@ -45,7 +45,7 @@ def test_gemini_flash_is_used_when_groq_fails():
     llm.create_chat_completion(messages=[{"role": "user", "content": "Explain protein"}])
 
     assert [url for url, _ in calls] == [PROVIDERS[0][1], PROVIDERS[1][1]]
-    assert calls[1][1]["model"] == "gemini-2.5-flash"
+    assert calls[1][1]["model"] == "gemini-3.5-flash-lite"
     assert llm.last["provider"] == "gemini"
 
 
