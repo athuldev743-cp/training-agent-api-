@@ -48,11 +48,6 @@ def test_static_resume_evaluation_is_secret_gated_and_read_only(monkeypatch):
 def test_nutrition_case_endpoint_returns_only_evaluation_result(monkeypatch):
     monkeypatch.setenv("EVALUATION_API_KEY", SECRET)
     monkeypatch.setattr(
-        routes,
-        "require_evaluation_key",
-        lambda: None,
-    )
-    monkeypatch.setattr(
         metrics,
         "evaluate_nutrition_case",
         lambda index: {
