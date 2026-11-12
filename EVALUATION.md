@@ -106,3 +106,23 @@ Before describing the service as production-ready, verify these operational cont
 - [ ] A reviewed adversarial safety set and end-to-end load test have passed against the release candidate.
 
 This checklist is a release gate, not a claim that every item has already been verified.
+
+## 8. Secret-gated live retrieval evaluation
+
+The API includes a temporary-use, read-only endpoint at `POST /internal/evaluation/retrieval`. It is deliberately excluded from OpenAPI. The endpoint returns 404 unless `EVALUATION_API_KEY` is configured in the deployment environment with a secret of at least 32 characters. Requests must provide the same value in the `X-Evaluation-Key` header. Never commit the secret or place it in a client-side application.
+
+The endpoint accepts **one labelled query per request**, a domain (`fitness` or `nutrition`), and up to five candidate limits (5–100). It compares vector-only retrieval once, then RRF and cross-encoder retrieval for each candidate limit. Responses contain ranking metrics, server-side retrieval-call timings, reranker status and paired reranking overhead. They do not return chunk text.
+
+The route is isolated from user profile, workout, history, program and account stores. It only performs SELECT-based retrieval against the fitness/nutrition knowledge tables and loads the existing embedding/reranking models. It does not write to application or user data. It is disabled by default when the evaluation secret is absent. Remove the deployment secret after the evaluation to disable access again.
+
+Run the client from any working directory by supplying the dataset path. The dataset is read by the client and each labelled query is sent to the deployed API; the benchmark itself runs on the deployed service:
+
+```powershell
+$env:EVALUATION_API_KEY = "<the strong secret configured on the deployed API>"
+python C:\path\to\training-agent-api\scripts\run_live_retrieval_sweep.py --base-url https://training-agent-api.fastapicloud.dev --domain fitness --dataset C:\path\to\fitness.jsonl --candidate-counts 10 20 30 50 75 --output C:\path\to\live-fitness-sweep.json
+```
+
+Repeat with `--domain nutrition` and the nutrition relevance dataset. The client performs a warm-up request first, then aggregates macro ranking metrics, p50/p95 retrieval latency and p50/p95 **paired** reranking overhead across the query set. A reranker fallback is never counted as a successful reranked result; incomplete reranker runs have null reranked quality/overhead summaries. The returned latency is warmed server-side retrieval-call latency, not end-to-end chat latency.
+
+The endpoint processes one query per HTTP request to bound request duration. The existing API rate limit still applies. Start with a small `--max-cases 2` smoke test, then run the full reviewed dataset. Do not use a partial smoke-test report as a resume performance claim.
+

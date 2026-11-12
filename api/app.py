@@ -940,3 +940,8 @@ def v1_progress_weekly(today: date | None = None, user: str = Depends(current_us
         return weekly_summary(_client_today(today), active["program"] if active else None, rows, set_rows(s["history"]), exercises())
     finally:
         close(s)
+
+# Secret-gated internal retrieval benchmark; disabled unless EVALUATION_API_KEY is configured.
+from api.retrieval_evaluation import router as retrieval_evaluation_router
+
+app.include_router(retrieval_evaluation_router)
