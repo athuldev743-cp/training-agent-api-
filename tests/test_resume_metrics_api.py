@@ -1,7 +1,6 @@
 from fastapi.testclient import TestClient
 
 from api.app import app
-import api.retrieval_evaluation as routes
 import evaluation.resume_metrics as metrics
 
 SECRET = "test-evaluation-secret-that-is-at-least-32-chars"
@@ -15,7 +14,8 @@ def test_resume_evaluation_routes_are_hidden_from_openapi():
     assert NUTRITION_PATH not in paths
 
 
-def test_resume_evaluation_requires_configured_secret():
+def test_resume_evaluation_requires_configured_secret(monkeypatch):
+    monkeypatch.delenv("EVALUATION_API_KEY", raising=False)
     with TestClient(app) as client:
         response = client.post(STATIC_PATH)
     assert response.status_code == 404
