@@ -40,8 +40,17 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=ROOT / "artifacts/evaluation/live-resume-metrics.json")
     parser.add_argument("--timeout", type=float, default=240.0)
     parser.add_argument("--skip-retrieval", action="store_true")
+    parser.add_argument("--max-nutrition-cases", type=int, default=5, help="maximum new nutrition cases per run")
+    parser.add_argument("--max-retrieval-cases", type=int, default=5, help="maximum retrieval queries per domain")
+    parser.add_argument("--candidate-counts", nargs="+", type=int, default=[10], help="reranker candidate limits; default: 10")
+    parser.add_argument("--pause-seconds", type=float, default=3.0, help="pause between live requests")
+    parser.add_argument("--resume", action="store_true", help="resume from the existing output checkpoint")
     parser.add_argument("--interactive-review", action="store_true", help="hand-review nutrition citations and factual support")
     args = parser.parse_args()
+    if args.max_nutrition_cases < 1 or args.max_retrieval_cases < 1:
+        parser.error("case limits must be positive")
+    if args.pause_seconds < 0:
+        parser.error("--pause-seconds cannot be negative")
 
     key = os.getenv("EVALUATION_API_KEY", "").strip()
     if len(key) < 32:
@@ -51,25 +60,37 @@ def main() -> int:
     base = args.base_url.rstrip("/")
     headers = {"X-Evaluation-Key": key}
     timeout = httpx.Timeout(args.timeout, connect=20.0)
-    report = {
-        "evaluation": "live-resume-metrics",
-        "base_url": base,
-        "environment": "deployed API",
-        "user_data_mutated": False,
-    }
+    if args.resume and args.output.exists():
+        report = json.loads(args.output.read_text(encoding="utf-8"))
+        if report.get("base_url") != base:
+            parser.error("checkpoint base_url differs; choose another --output")
+        print(f"Resuming checkpoint: {args.output}")
+    else:
+        report = {
+            "evaluation": "live-resume-metrics",
+            "base_url": base,
+            "environment": "deployed API",
+            "user_data_mutated": False,
+        }
 
+    args.output.parent.mkdir(parents=True, exist_ok=True)
     with httpx.Client(headers=headers, timeout=timeout) as client:
-        print("Running routing, workout, progression and safety evaluations...")
-        report["static_evaluations"] = post(
-            client, base + "/internal/evaluation/resume-metrics/static"
-        )
+        if "static_evaluations" not in report:
+            print("Running routing, workout, progression and safety evaluations...")
+            report["static_evaluations"] = post(
+                client, base + "/internal/evaluation/resume-metrics/static"
+            )
+            args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
         total_nutrition = int(
             report["static_evaluations"]["nutrition_grounding_dataset_cases"]
         )
 
-        nutrition_rows = []
-        print(f"Running {total_nutrition} live NutritionAgent evaluation cases...")
-        for index in range(total_nutrition):
+        nutrition_rows = report.get("nutrition_grounding", {}).get("per_case", [])
+        completed_indices = {int(row["case_index"]) for row in nutrition_rows if "case_index" in row and row.get("status") != "evaluation_error"}
+        pending_indices = [index for index in range(total_nutrition) if index not in completed_indices][:args.max_nutrition_cases]
+        print(f"Nutrition cases: {len(completed_indices)}/{total_nutrition} complete; running up to {len(pending_indices)} this session...")
+        stopped_on_error = False
+        for index in pending_indices:
             try:
                 row = post(
                     client,
@@ -84,8 +105,26 @@ def main() -> int:
                     "insufficient_evidence_refusal": False,
                     "error_type": type(exc).__name__,
                 }
+            nutrition_rows = [item for item in nutrition_rows if int(item.get("case_index", -1)) != index]
             nutrition_rows.append(row)
+            report["nutrition_grounding"] = {"per_case": nutrition_rows}
+            args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
             print(f"  [{index + 1}/{total_nutrition}] {row.get('case_id', index)}: {row.get('status')}")
+            if row.get("status") == "evaluation_error":
+                stopped_on_error = True
+                break
+            if args.pause_seconds:
+                time.sleep(args.pause_seconds)
+
+    nutrition_rows.sort(key=lambda item: int(item.get("case_index", 0)))
+    successful_indices = {int(row["case_index"]) for row in nutrition_rows if "case_index" in row and row.get("status") != "evaluation_error"}
+    if stopped_on_error or len(successful_indices) < total_nutrition:
+        report["nutrition_grounding"] = {"total_requests": len(nutrition_rows), "per_case": nutrition_rows}
+        report["run_status"] = "partial_nutrition"
+        args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+        print(f"Checkpoint saved: {args.output}")
+        print("Run again with --resume after the service is healthy to continue the remaining cases.")
+        return 0
 
     if args.interactive_review:
         for row in nutrition_rows:
@@ -163,7 +202,9 @@ def main() -> int:
                 "--base-url", base,
                 "--domain", domain,
                 "--dataset", str(dataset),
-                "--candidate-counts", "10", "20", "30", "50", "75",
+                "--candidate-counts", *[str(value) for value in args.candidate_counts],
+                "--max-cases", str(args.max_retrieval_cases),
+                "--pause-seconds", str(args.pause_seconds),
                 "--output", str(output),
                 "--timeout", str(args.timeout),
             ]
@@ -173,6 +214,7 @@ def main() -> int:
                 raise RuntimeError(f"{domain} retrieval sweep failed with exit code {completed.returncode}")
             report["retrieval"][domain] = json.loads(output.read_text(encoding="utf-8"))
 
+    report["run_status"] = "completed"
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
