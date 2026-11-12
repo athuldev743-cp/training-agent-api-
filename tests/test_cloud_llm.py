@@ -1,6 +1,6 @@
 ﻿from agent.cloud_llm import CloudOnlyLLM, LLMUnavailable
 from agent.model_registry import MODEL_REGISTRY
-
+import pytest
 
 def _reply(text="grounded response [S1]"):
     return {"choices": [{"message": {"content": text}}], "usage": {}}
@@ -160,3 +160,26 @@ def test_http_429_then_openrouter_503_falls_through_to_second_groq():
     assert llm.last["model"] == MODEL_REGISTRY[2]["model"]
     assert llm.skip_until[MODEL_REGISTRY[0]["name"]] > 0
     assert llm.skip_until[MODEL_REGISTRY[1]["name"]] > 0
+
+    import pytest
+from agent.cloud_llm import CloudOnlyLLM, LLMUnavailable
+
+
+def test_truncated_reply_does_not_start_cooldown():
+    calls = {"n": 0}
+
+    def fake_post(url, key, body, timeout):
+        calls["n"] += 1
+        if calls["n"] <= 3:
+            return {"choices": [{"message": {"content": "cut off"}, "finish_reason": "length"}]}
+        return {"choices": [{"message": {"content": "ok"}, "finish_reason": "stop"}]}
+
+    llm = CloudOnlyLLM(post=fake_post, env={"GROQ_API_KEY": "a", "OPENROUTER_API_KEY": "b"})
+    msgs = [{"role": "user", "content": "hi"}]
+
+    with pytest.raises(LLMUnavailable):
+        llm.create_chat_completion(messages=msgs, max_tokens=100)
+
+    result = llm.create_chat_completion(messages=msgs, max_tokens=100)
+    assert result["choices"][0]["message"]["content"] == "ok"
+    assert calls["n"] == 4  # the second request tried a model instead of skipping all three

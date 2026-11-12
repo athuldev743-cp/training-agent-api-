@@ -60,6 +60,7 @@ class HybridLLM:
     COOLDOWN_S = 300
     RATE_LIMIT_COOLDOWN_S = 60
     SERVER_ERROR_COOLDOWN_S = 45
+    REJECTED_REPLY_COOLDOWN_S = 0
 
     def __init__(
         self,
@@ -223,9 +224,10 @@ class HybridLLM:
 
                 choice = data["choices"][0]
                 content = choice["message"]["content"]
+                
 
                 if choice.get("finish_reason") == "length":
-                    self._fail(model_name, "truncated")
+                    self._fail(model_name, "truncated", self.REJECTED_REPLY_COOLDOWN_S)
                     logger.warning(
                         "Cloud LLM rejected provider=%s model=%s reason=truncated",
                         provider, config["model"],
@@ -233,7 +235,7 @@ class HybridLLM:
                     continue
 
                 if not isinstance(content, str) or not content.strip():
-                    self._fail(model_name, "empty_response")
+                    self._fail(model_name, "empty_response", self.REJECTED_REPLY_COOLDOWN_S)
                     logger.warning(
                         "Cloud LLM rejected provider=%s model=%s reason=empty_response",
                         provider, config["model"],
@@ -267,7 +269,7 @@ class HybridLLM:
                 return result, config
 
             except json.JSONDecodeError:
-                self._fail(model_name, "bad_json")
+                self._fail(model_name, "bad_json", self.REJECTED_REPLY_COOLDOWN_S)
                 logger.warning(
                     "Cloud LLM rejected provider=%s model=%s reason=bad_json",
                     provider, config["model"],
