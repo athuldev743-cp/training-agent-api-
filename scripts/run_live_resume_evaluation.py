@@ -97,7 +97,7 @@ def main() -> int:
             for evidence in row.get("evidence_excerpts", []):
                 print(
                     f"\n{evidence.get('source')} | page={evidence.get('page')} "
-                    f"| chunk={evidence.get('chunk_number')}\\n{evidence.get('quote', '')}"
+                    f"| chunk={evidence.get('chunk_number')}\n{evidence.get('quote', '')}"
                 )
 
             def ask_review(label: str):
