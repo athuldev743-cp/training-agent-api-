@@ -46,6 +46,7 @@ def main() -> int:
     if len(key) < 32:
         parser.error("set EVALUATION_API_KEY to the strong secret configured on the deployed API")
 
+    args.output = args.output.expanduser().resolve()
     base = args.base_url.rstrip("/")
     headers = {"X-Evaluation-Key": key}
     timeout = httpx.Timeout(args.timeout, connect=20.0)
