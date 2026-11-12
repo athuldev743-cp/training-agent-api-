@@ -124,7 +124,7 @@ def main() -> int:
                 "case_id": cases[0]["case_id"],
                 "query": cases[0]["query"],
                 "relevant_chunk_ids": cases[0]["relevant_chunk_ids"],
-                "candidate_counts": [30],
+                "candidate_counts": [min(args.candidate_counts)],
                 "warmup_only": True,
             },
         )
