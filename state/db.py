@@ -25,7 +25,11 @@ def check_user_id(user_id) -> str:
 
 
 def connect(path=":memory:", read_only: bool = False, timeout: float = 5.0) -> sqlite3.Connection:
-    if not read_only and os.getenv("STATE_BACKEND") == "postgres":
+    if (
+    not read_only
+    and str(path) == ":memory:"
+    and os.getenv("STATE_BACKEND") == "postgres"
+):
         from state.pg_compat import connect_pg
         return connect_pg()
     if read_only:
