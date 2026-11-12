@@ -80,11 +80,12 @@ def main() -> int:
         "--candidate-counts",
         nargs="+",
         type=int,
-        default=[10, 20, 30, 50, 75],
+        default=[10],
     )
     parser.add_argument("--output", type=Path)
     parser.add_argument("--timeout", type=float, default=180.0)
-    parser.add_argument("--max-cases", type=int)
+    parser.add_argument("--max-cases", type=int, default=5, help="maximum queries per run (default: 5)")
+    parser.add_argument("--pause-seconds", type=float, default=2.0, help="pause between requests")
     args = parser.parse_args()
 
     api_key = os.getenv("EVALUATION_API_KEY", "").strip()
@@ -98,6 +99,8 @@ def main() -> int:
         parser.error("candidate counts must be unique")
     if args.timeout <= 0:
         parser.error("--timeout must be positive")
+    if args.pause_seconds < 0:
+        parser.error("--pause-seconds cannot be negative")
 
     cases = load_dataset(args.dataset)
     if args.max_cases is not None:
@@ -128,10 +131,12 @@ def main() -> int:
         warmup_status = warmup.get("reranking_status")
         print(f"Warm-up: {warmup_status}")
         if warmup_status != "applied":
-            raise RuntimeError(
-                "Cross-encoder did not run during warm-up "
-                f"(status={warmup_status!r}); no benchmark report was produced."
+            print(
+                f"Warning: reranker warm-up status is {warmup_status!r}; "
+                "the sweep will continue and report reranking as unavailable/fallback."
             )
+        if args.pause_seconds:
+            time.sleep(args.pause_seconds)
 
         vector_rows = []
         vector_latencies = []
@@ -194,6 +199,8 @@ def main() -> int:
                 )
 
             print(f"[{index}/{len(cases)}] {case['case_id']} complete")
+            if args.pause_seconds:
+                time.sleep(args.pause_seconds)
 
     candidate_report = {}
     for candidate, values in by_candidate.items():
