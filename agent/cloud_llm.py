@@ -1,13 +1,13 @@
-"""Cloud-first chat with local fallback. Free providers in order, each tried once; stops at the first valid reply.
-Failing providers are skipped for a cooldown, and the whole chain has a total deadline. Router calls, streaming and
-prompts containing profile FACTS always stay local. Off unless CLOUD_LLM=1."""
+"""Cloud-first chat with local fallback. Groq, Gemini and OpenRouter are tried once in order.
+Failing providers are skipped for a cooldown, and the whole chain has a bounded total deadline. Router calls,
+streaming and prompts containing profile FACTS always stay local. Off unless CLOUD_LLM=1."""
 import json, os, time, urllib.request
 
-# Gemini is the primary free-tier provider. The longer chain deadline lets each
-# provider receive its own bounded timeout instead of starving later fallbacks.
+# Keep Groq first: its inference API does not retain prompts by default. The longer
+# deadline gives Gemini and OpenRouter meaningful time when an earlier provider stalls.
 PROVIDERS = [
-    ("gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "GEMINI_API_KEY", "GEMINI_MODEL", "gemini-2.5-flash"),
     ("groq", "https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY", "GROQ_MODEL", "openai/gpt-oss-120b"),
+    ("gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "GEMINI_API_KEY", "GEMINI_MODEL", "gemini-2.5-flash"),
     ("openrouter", "https://openrouter.ai/api/v1/chat/completions", "OPENROUTER_API_KEY", "OPENROUTER_MODEL", "google/gemma-4-31b-it:free"),
 ]
 
