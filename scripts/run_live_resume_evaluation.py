@@ -213,11 +213,11 @@ def main() -> int:
             if completed.returncode != 0:
                 report["run_status"] = f"{domain}_retrieval_incomplete"
                 report["retrieval_error_exit_code"] = completed.returncode
-                args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+                args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
                 print(f"Stopped; checkpoint saved: {args.output}")
                 return completed.returncode
             report["retrieval"][domain] = json.loads(output.read_text(encoding="utf-8"))
-            args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+            args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
     report["run_status"] = "completed"
     args.output.parent.mkdir(parents=True, exist_ok=True)
