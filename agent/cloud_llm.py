@@ -3,9 +3,11 @@ Failing providers are skipped for a cooldown, and the whole chain has a total de
 prompts containing profile FACTS always stay local. Off unless CLOUD_LLM=1."""
 import json, os, time, urllib.request
 
+# Gemini is the primary free-tier provider. The longer chain deadline lets each
+# provider receive its own bounded timeout instead of starving later fallbacks.
 PROVIDERS = [
-    ("groq", "https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY", "GROQ_MODEL", "openai/gpt-oss-120b"),
     ("gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "GEMINI_API_KEY", "GEMINI_MODEL", "gemini-2.5-flash"),
+    ("groq", "https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY", "GROQ_MODEL", "openai/gpt-oss-120b"),
     ("openrouter", "https://openrouter.ai/api/v1/chat/completions", "OPENROUTER_API_KEY", "OPENROUTER_MODEL", "google/gemma-4-31b-it:free"),
 ]
 
@@ -20,7 +22,7 @@ def _post(url, key, body, timeout):
 class HybridLLM:
     COOLDOWN_S = 300
 
-    def __init__(self, local, post=_post, timeout=8.0, env=None, deadline=10.0, clock=time.monotonic):
+    def __init__(self, local, post=_post, timeout=8.0, env=None, deadline=25.0, clock=time.monotonic):
         if env is None:
             try:
                 from dotenv import load_dotenv
@@ -87,7 +89,7 @@ class CloudOnlyLLM(HybridLLM):
     Structured (JSON) requests must come back as valid JSON. Identical requests that carry no personal facts are cached."""
     CACHE_TTL_S, CACHE_MAX = 6 * 3600, 500
 
-    def __init__(self, post=_post, timeout=8.0, env=None, deadline=10.0, clock=time.monotonic):
+    def __init__(self, post=_post, timeout=8.0, env=None, deadline=25.0, clock=time.monotonic):
         super().__init__(None, post=post, timeout=timeout, env=env, deadline=deadline, clock=clock)
         self.cache = collections.OrderedDict()
 
@@ -147,9 +149,9 @@ class CloudOnlyLLM(HybridLLM):
 import re as _re
 
 _REDACT = [
-    (_re.compile(r"(avoids loading:\s*)[^;\n]+", _re.I), r"\1(not shared)"),
-    (_re.compile(r"(Avoiding exercises that load:\s*)[^.\n]+", _re.I), r"\1(not shared)"),
-    (_re.compile(r"(limitations? \()[^)]*(\))", _re.I), r"\1not shared\2"),
+    (_re.compile(r"(avoids loading:\\s*)[^;\\n]+", _re.I), r"\\1(not shared)"),
+    (_re.compile(r"(Avoiding exercises that load:\\s*)[^.\\n]+", _re.I), r"\\1(not shared)"),
+    (_re.compile(r"(limitations? \\()[^)]*(\\))", _re.I), r"\\1not shared\\2"),
 ]
 
 
