@@ -80,7 +80,7 @@ def main() -> int:
             report["static_evaluations"] = post(
                 client, base + "/internal/evaluation/resume-metrics/static"
             )
-            args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+            args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         total_nutrition = int(
             report["static_evaluations"]["nutrition_grounding_dataset_cases"]
         )
@@ -108,7 +108,7 @@ def main() -> int:
             nutrition_rows = [item for item in nutrition_rows if int(item.get("case_index", -1)) != index]
             nutrition_rows.append(row)
             report["nutrition_grounding"] = {"per_case": nutrition_rows}
-            args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+            args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
             print(f"  [{index + 1}/{total_nutrition}] {row.get('case_id', index)}: {row.get('status')}")
             if row.get("status") == "evaluation_error":
                 stopped_on_error = True
@@ -121,7 +121,7 @@ def main() -> int:
     if stopped_on_error or len(successful_indices) < total_nutrition:
         report["nutrition_grounding"] = {"total_requests": len(nutrition_rows), "per_case": nutrition_rows}
         report["run_status"] = "partial_nutrition"
-        args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+        args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         print(f"Checkpoint saved: {args.output}")
         print("Run again with --resume after the service is healthy to continue the remaining cases.")
         return 0
@@ -192,7 +192,7 @@ def main() -> int:
     }
 
     if not args.skip_retrieval:
-        report["retrieval"] = {}
+        report.setdefault("retrieval", {})
         for domain in ("fitness", "nutrition"):
             dataset = ROOT / "evaluation" / "datasets" / f"{domain}.jsonl"
             output = args.output.parent / f"live-{domain}-candidate-sweep.json"
@@ -211,8 +211,13 @@ def main() -> int:
             print(f"Running live {domain} retrieval candidate sweep...")
             completed = subprocess.run(command, cwd=ROOT, check=False)
             if completed.returncode != 0:
-                raise RuntimeError(f"{domain} retrieval sweep failed with exit code {completed.returncode}")
+                report["run_status"] = f"{domain}_retrieval_incomplete"
+                report["retrieval_error_exit_code"] = completed.returncode
+                args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+                print(f"Stopped; checkpoint saved: {args.output}")
+                return completed.returncode
             report["retrieval"][domain] = json.loads(output.read_text(encoding="utf-8"))
+            args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
 
     report["run_status"] = "completed"
     args.output.parent.mkdir(parents=True, exist_ok=True)
