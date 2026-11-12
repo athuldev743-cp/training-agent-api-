@@ -149,9 +149,9 @@ class CloudOnlyLLM(HybridLLM):
 import re as _re
 
 _REDACT = [
-    (_re.compile(r"(avoids loading:\\s*)[^;\\n]+", _re.I), r"\\1(not shared)"),
-    (_re.compile(r"(Avoiding exercises that load:\\s*)[^.\\n]+", _re.I), r"\\1(not shared)"),
-    (_re.compile(r"(limitations? \\()[^)]*(\\))", _re.I), r"\\1not shared\\2"),
+    (_re.compile(r"(avoids loading:\s*)[^;\n]+", _re.I), r"\1(not shared)"),
+    (_re.compile(r"(Avoiding exercises that load:\s*)[^.\n]+", _re.I), r"\1(not shared)"),
+    (_re.compile(r"(limitations? \()[^)]*(\))", _re.I), r"\1not shared\2"),
 ]
 
 
