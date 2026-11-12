@@ -95,3 +95,26 @@ def test_default_deadline_allows_all_three_model_attempts():
     ]
     assert all(timeout <= 14.0 for _, timeout in calls)
     assert sum(timeout for _, timeout in calls) == 18.0
+
+def test_provider_failure_is_logged_without_secrets_or_prompt(caplog):
+    def post(url, key, body, timeout):
+        if body["model"] == MODEL_REGISTRY[0]["model"]:
+            raise RuntimeError("simulated provider failure")
+        return _reply()
+
+    llm = CloudOnlyLLM(post=post, env={
+        "GROQ_API_KEY": "secret-groq-test",
+        "OPENROUTER_API_KEY": "secret-openrouter-test",
+    })
+
+    llm.create_chat_completion(
+        messages=[{"role": "user", "content": "private test prompt"}]
+    )
+
+    log = caplog.text
+    assert "Cloud LLM attempt failed" in log
+    assert MODEL_REGISTRY[0]["provider"] in log
+    assert MODEL_REGISTRY[0]["model"] in log
+    assert "RuntimeError" in log
+    assert "secret-groq-test" not in log
+    assert "private test prompt" not in log

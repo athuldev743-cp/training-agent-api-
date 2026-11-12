@@ -15,6 +15,7 @@ Model-priority cloud LLM chain with optional local fallback.
 import collections
 import hashlib
 import json
+import logging
 import os
 import re as _re
 import time
@@ -22,6 +23,8 @@ import urllib.error
 import urllib.request
 
 from agent.model_registry import MODEL_REGISTRY
+
+logger = logging.getLogger(__name__)
 PROVIDERS = tuple(
     (
         config["provider"],
@@ -240,6 +243,16 @@ class HybridLLM:
 
             except Exception as exc:
                 status = getattr(exc, "code", None)
+
+                logger.warning(
+                    "Cloud LLM attempt failed provider=%s model=%s "
+                    "error_type=%s http_status=%s elapsed_ms=%s",
+                    provider,
+                    config["model"],
+                    type(exc).__name__,
+                    status if status is not None else "n/a",
+                    int((self.clock() - started) * 1000),
+                )
 
                 if status in (401, 403):
                     self._fail(model_name, f"http_{status}")
