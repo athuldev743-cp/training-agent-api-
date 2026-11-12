@@ -91,12 +91,12 @@ def main() -> int:
         for row in nutrition_rows:
             if row.get("status") != "ok":
                 continue
-            print("\\n" + "=" * 72)
+            print("\n" + "=" * 72)
             print(f"Human review: {row.get('case_id')}")
             print(row.get("answer", ""))
             for evidence in row.get("evidence_excerpts", []):
                 print(
-                    f"\\n{evidence.get('source')} | page={evidence.get('page')} "
+                    f"\n{evidence.get('source')} | page={evidence.get('page')} "
                     f"| chunk={evidence.get('chunk_number')}\\n{evidence.get('quote', '')}"
                 )
 
