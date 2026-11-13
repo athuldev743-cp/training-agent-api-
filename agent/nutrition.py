@@ -174,6 +174,7 @@ class NutritionAgent:
         profile_context = self._format_profile(request.profile)
         allowed = {f"S{i}" for i in range(1, len(evidence) + 1)}
         last_diagnostic: dict[str, Any] = {}
+        served_by: list[dict[str, Any]] = []
 
         for attempt in range(1, MAX_CITATION_ATTEMPTS + 1):
             try:
@@ -203,6 +204,7 @@ class NutritionAgent:
                     max_tokens=350,
                     temperature=0.1,
                 )
+                served_by.append(dict(getattr(self.llm, "last", None) or {}))
                 answer = completion["choices"][0]["message"]["content"]
                 if not isinstance(answer, str) or not answer.strip():
                     raise ValueError("empty model response")
@@ -217,6 +219,7 @@ class NutritionAgent:
                         "pipeline_stage": "generation",
                         "failure_type": type(exc).__name__,
                         "citation_attempts": attempt,
+                        "served_by": served_by,
                         "citation_sources": [
                             {"label": f"[S{i}]", "source": item.source, "page": item.page,
                              "chunk_number": item.chunk_number}
@@ -235,6 +238,7 @@ class NutritionAgent:
                 "pipeline_stage": "citation_validation",
                 "citation_validation": "passed" if valid else "failed",
                 "citation_attempts": attempt,
+                "served_by": served_by,
                 "allowed_citations": sorted(allowed_tags),
                 "observed_citations": sorted(observed),
                 "failure_type": None if valid else (

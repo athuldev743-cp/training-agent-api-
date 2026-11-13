@@ -146,6 +146,7 @@ def evaluate_nutrition_case(case_index: int) -> dict[str, Any]:
         "insufficient_evidence_refusal": insufficient_evidence_refusal,
         "evidence_count": len(result.evidence),
         "failure_type": result.metadata.get("failure_type"),
+        "served_by": result.metadata.get("served_by"),
         "citation_sources": result.metadata.get("citation_sources", []),
         "evidence_excerpts": [item.model_dump() for item in result.evidence],
         "answer": result.message,
